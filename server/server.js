@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
@@ -75,22 +74,25 @@ app.use((err, req, res, _next) => {
   });
 });
 
-const server = app.listen(PORT, (err) => {
-  if (err) {
-    console.error(`❌ Failed to start TruthShield API Server on port ${PORT}:`, err.message);
-    process.exit(1);
-  }
-  console.log(`🛡️  TruthShield API Server running on port ${PORT}`);
-  console.log(`📡  Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🔍  Analyze endpoint: http://localhost:${PORT}/api/analyze`);
-  if (isProduction && existsSync(distPath)) {
-    console.log(`🌐  Serving frontend from dist/`);
-  }
-});
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, (err) => {
+    if (err) {
+      console.error(`❌ Failed to start TruthShield API Server on port ${PORT}:`, err.message);
+      process.exit(1);
+    }
+    console.log(`🛡️  TruthShield API Server running on port ${PORT}`);
+    console.log(`📡  Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🔍  Analyze endpoint: http://localhost:${PORT}/api/analyze`);
+    if (isProduction && existsSync(distPath)) {
+      console.log(`🌐  Serving frontend from dist/`);
+    }
+  });
 
-server.on('error', (err) => {
-  console.error(`❌ TruthShield API Server error:`, err.message);
-  process.exit(1);
-});
+  server.on('error', (err) => {
+    console.error(`❌ TruthShield API Server error:`, err.message);
+    process.exit(1);
+  });
+}
 
 export default app;

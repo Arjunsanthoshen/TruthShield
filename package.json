@@ -9,6 +9,7 @@
     "server": "node server/server.js",
     "build": "vite build",
     "start": "NODE_ENV=production node server/server.js",
+    "test": "NODE_ENV=test node --test test/**/*.test.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

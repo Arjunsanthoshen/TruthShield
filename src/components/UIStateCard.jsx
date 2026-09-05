@@ -37,7 +37,14 @@ function LoadingState({ onReset }) {
   }, []);
 
   return (
-    <div className="p-8 sm:p-10 rounded-3xl bg-slate-900/90 border border-emerald-500/30 shadow-2xl backdrop-blur-xl mb-8 animate-fade-in relative overflow-hidden">
+    <div
+      role="status"
+      aria-live="polite"
+      className="p-8 sm:p-10 rounded-3xl bg-slate-900/90 border border-emerald-500/30 shadow-2xl backdrop-blur-xl mb-8 animate-fade-in relative overflow-hidden"
+    >
+      <span className="sr-only">
+        Analyzing image with Gemini Vision AI. Current progress: {SCAN_MESSAGES[msgIndex]}
+      </span>
 
       {/* Animated laser scan line across the card */}
       <div
@@ -51,7 +58,7 @@ function LoadingState({ onReset }) {
       <div className="flex flex-col items-center justify-center text-center space-y-6">
 
         {/* Pulsing shield icon */}
-        <div className="relative flex items-center justify-center w-20 h-20">
+        <div className="relative flex items-center justify-center w-20 h-20" aria-hidden="true">
           <div className="absolute inset-0 rounded-full bg-emerald-500/10 border border-emerald-500/30 animate-ping" />
           <div className="absolute inset-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 animate-ping [animation-delay:0.4s]" />
           <div className="relative w-14 h-14 rounded-full bg-slate-900 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
@@ -61,7 +68,7 @@ function LoadingState({ onReset }) {
 
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-300 mb-3">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
             <span>Gemini Vision Analysis Active</span>
           </div>
 
@@ -78,7 +85,7 @@ function LoadingState({ onReset }) {
         </div>
 
         {/* Indeterminate scanning bar */}
-        <div className="w-full max-w-sm space-y-2">
+        <div className="w-full max-w-sm space-y-2" aria-hidden="true">
           <div className="relative w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
             {/* Moving shimmer */}
             <div className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-[shimmer_1.8s_ease-in-out_infinite] rounded-full" />
@@ -92,7 +99,8 @@ function LoadingState({ onReset }) {
         <button
           type="button"
           onClick={onReset}
-          className="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-4 transition-colors"
+          aria-label="Cancel image analysis and choose another file"
+          className="text-xs text-slate-400 hover:text-slate-200 underline underline-offset-4 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
         >
           Cancel
         </button>
@@ -109,15 +117,19 @@ export default function UIStateCard({ state, data, onReset, onRetry }) {
   if (state === 'invalid_file') {
     const isPhase2 = data?.type === 'PHASE_2_FORMAT';
     return (
-      <div className={`p-6 rounded-2xl border mb-8 animate-fade-in ${
-        isPhase2
-          ? 'bg-cyan-950/20 border-cyan-500/40 text-cyan-200'
-          : 'bg-rose-950/20 border-rose-500/40 text-rose-200'
-      }`}>
+      <div
+        role="alert"
+        aria-live="assertive"
+        className={`p-6 rounded-2xl border mb-8 animate-fade-in ${
+          isPhase2
+            ? 'bg-cyan-950/20 border-cyan-500/40 text-cyan-200'
+            : 'bg-rose-950/20 border-rose-500/40 text-rose-200'
+        }`}
+      >
         <div className="flex items-start gap-4">
           <div className={`p-3 rounded-xl ${
             isPhase2 ? 'bg-cyan-500/10 text-cyan-400' : 'bg-rose-500/10 text-rose-400'
-          }`}>
+          }`} aria-hidden="true">
             {isPhase2 ? <AlertTriangle className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
           </div>
           <div className="flex-1">
@@ -125,7 +137,12 @@ export default function UIStateCard({ state, data, onReset, onRetry }) {
               <h4 className="text-base font-bold text-white mb-1">
                 {data?.title || 'Invalid File'}
               </h4>
-              <button type="button" onClick={onReset} className="text-xs underline text-slate-400 hover:text-white">
+              <button
+                type="button"
+                onClick={onReset}
+                aria-label="Dismiss invalid file notification"
+                className="text-xs underline text-slate-400 hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 rounded"
+              >
                 Dismiss
               </button>
             </div>
@@ -137,17 +154,19 @@ export default function UIStateCard({ state, data, onReset, onRetry }) {
                 Target: {data.fileName}
               </div>
             )}
-            <button
-              type="button"
-              onClick={onReset}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide ${
-                isPhase2
-                  ? 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40'
-                  : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
-              } transition-colors`}
-            >
-              Select Supported Image
-            </button>
+            <div>
+              <button
+                type="button"
+                onClick={onReset}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide ${
+                  isPhase2
+                    ? 'bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40'
+                    : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
+                } transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400`}
+              >
+                Select Supported Image
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -162,9 +181,13 @@ export default function UIStateCard({ state, data, onReset, onRetry }) {
   // Error State
   if (state === 'error') {
     return (
-      <div className="p-6 rounded-2xl bg-rose-950/20 border border-rose-500/40 text-rose-200 mb-8 animate-fade-in">
+      <div
+        role="alert"
+        aria-live="assertive"
+        className="p-6 rounded-2xl bg-rose-950/20 border border-rose-500/40 text-rose-200 mb-8 animate-fade-in"
+      >
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 shrink-0">
+          <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 shrink-0" aria-hidden="true">
             <AlertCircle className="w-6 h-6" />
           </div>
           <div className="flex-1">
@@ -189,7 +212,8 @@ export default function UIStateCard({ state, data, onReset, onRetry }) {
                 <button
                   type="button"
                   onClick={onRetry}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-400 text-white transition-colors shadow-md"
+                  aria-label="Retry media verification"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-400 text-white transition-colors shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
                 >
                   Retry Analysis
                 </button>
@@ -197,7 +221,8 @@ export default function UIStateCard({ state, data, onReset, onRetry }) {
               <button
                 type="button"
                 onClick={onReset}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
+                aria-label="Reset and choose another image"
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               >
                 Reset &amp; Try Another Image
               </button>

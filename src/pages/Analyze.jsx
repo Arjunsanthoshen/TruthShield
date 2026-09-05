@@ -82,33 +82,34 @@ export default function Analyze({ onNavigate }) {
       <div className="flex items-center justify-between mb-8">
         <button
           onClick={() => onNavigate('home')}
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+          aria-label="Back to Overview page"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-lg"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>Back to Overview</span>
         </button>
 
         <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
           <span>Gemini Vision Analysis Active</span>
         </div>
       </div>
 
-      {/* Page Title & Context Header (hidden or compact during result view for visual hierarchy) */}
-      {uiState !== 'result' && (
-        <div className="mb-10 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-emerald-400 mb-3">
-            <Shield className="w-3.5 h-3.5" />
-            <span>Gemini Multimodal Analysis</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
-            Media Verification Lab
-          </h1>
+      {/* Page Title & Context Header */}
+      <div className="mb-8 animate-fade-in">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-emerald-400 mb-3">
+          <Shield className="w-3.5 h-3.5" aria-hidden="true" />
+          <span>Gemini Multimodal Analysis</span>
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-2">
+          Media Verification Lab
+        </h1>
+        {uiState !== 'result' && (
           <p className="text-slate-400 text-base sm:text-lg max-w-2xl">
             Upload an image and receive a Gemini-powered assessment of whether it shows indicators of AI generation or manipulation.
           </p>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Alert / State Feedback Card for invalid_file, loading, and error states */}
       <UIStateCard

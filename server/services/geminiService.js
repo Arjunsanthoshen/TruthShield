@@ -115,6 +115,16 @@ function parseGeminiJson(text) {
 }
 
 /**
+ * Sanitize error messages to ensure API keys are never leaked in errors or logs.
+ */
+function sanitizeErrorMessage(message) {
+  if (!message || typeof message !== 'string') return 'Unknown Gemini API error';
+  return message
+    .replace(/AIza[0-9A-Za-z-_]{35}/g, '[REDACTED_API_KEY]')
+    .replace(/key=[^&\s]+/gi, 'key=[REDACTED]');
+}
+
+/**
  * Analyze an image buffer with Gemini multimodal analysis.
  *
  * @param {Buffer} fileBuffer - The uploaded image data
@@ -169,7 +179,7 @@ export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'i
 
     // Handle Gemini API errors: extract status and message safely
     const status = err.status || err.httpStatus || 500;
-    const msg = err.message || 'Unknown Gemini API error';
+    const msg = sanitizeErrorMessage(err.message);
 
     if (status === 400) {
       const badReqErr = new Error(`Gemini rejected the image (unsupported format or content policy): ${msg}`);

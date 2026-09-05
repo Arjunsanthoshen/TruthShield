@@ -85,7 +85,14 @@ function ConfidenceBar({ confidence, bar }) {
         <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">Assessment Confidence</span>
         <span className="text-3xl font-extrabold font-mono text-white">{pct}%</span>
       </div>
-      <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+      <div
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Assessment confidence: ${pct} percent`}
+        className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden"
+      >
         <div
           className={`h-full rounded-full bg-gradient-to-r ${bar} transition-all duration-700`}
           style={{ width: `${pct}%` }}
@@ -212,9 +219,10 @@ export default function AnalysisResult({ result, previewUrl, onReset }) {
                 id="analyze-another-btn"
                 type="button"
                 onClick={onReset}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                aria-label="Analyze another image"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4" aria-hidden="true" />
                 <span>Analyze Another</span>
               </button>
             </div>
@@ -237,7 +245,7 @@ export default function AnalysisResult({ result, previewUrl, onReset }) {
             <div className="rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center max-h-52">
               <img
                 src={previewUrl}
-                alt={file.name || 'Analyzed image'}
+                alt={file.name ? `Analyzed file preview: ${file.name}` : 'Analyzed image preview'}
                 className="max-h-52 w-auto max-w-full object-contain"
               />
             </div>
@@ -363,20 +371,22 @@ export default function AnalysisResult({ result, previewUrl, onReset }) {
         <button
           type="button"
           onClick={() => setShowRaw(!showRaw)}
-          className="w-full p-4 flex items-center justify-between text-left text-xs font-mono text-slate-500 hover:text-white hover:bg-slate-900/50 transition-colors"
+          aria-expanded={showRaw}
+          aria-controls="raw-gemini-json-panel"
+          className="w-full p-4 flex items-center justify-between text-left text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-900/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
         >
           <span className="flex items-center gap-2">
-            <FileCode className="w-4 h-4 text-emerald-400" />
+            <FileCode className="w-4 h-4 text-emerald-400" aria-hidden="true" />
             Raw Gemini Response
           </span>
           <span className="flex items-center gap-1">
             {showRaw ? 'Hide' : 'Inspect'}
-            {showRaw ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {showRaw ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
           </span>
         </button>
 
         {showRaw && (
-          <div className="p-4 border-t border-slate-800 bg-slate-950 overflow-x-auto">
+          <div id="raw-gemini-json-panel" className="p-4 border-t border-slate-800 bg-slate-950 overflow-x-auto">
             <pre className="text-emerald-400 text-xs max-h-72 overflow-y-auto leading-relaxed">
               {JSON.stringify(result, null, 2)}
             </pre>

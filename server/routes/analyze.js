@@ -1,8 +1,22 @@
 import express from 'express';
 import multer from 'multer';
-import { analyzeImageWithGemini } from '../services/geminiService.js';
+import geminiService from '../services/geminiService.js';
 
 const router = express.Router();
+
+function isValidImageMagicBytes(buffer) {
+  if (!buffer || buffer.length < 12) return false;
+  // JPEG: FF D8 FF
+  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return true;
+  // PNG: 89 50 4E 47
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) return true;
+  // WEBP: 'RIFF' .... 'WEBP'
+  if (
+    buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+    buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50
+  ) return true;
+  return false;
+}
 
 // Memory storage — image is passed directly as a Buffer to Gemini (no temp URL needed)
 const upload = multer({
@@ -74,6 +88,14 @@ router.post('/analyze', (req, res, next) => {
       });
     }
 
+    // Validate binary magic bytes to prevent MIME type spoofing
+    if (!isValidImageMagicBytes(buffer)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid image content. The uploaded file does not contain valid JPEG, PNG, or WEBP binary headers.'
+      });
+    }
+
     // Guard: ensure GEMINI_API_KEY is configured
     if (!process.env.GEMINI_API_KEY || !process.env.GEMINI_API_KEY.trim()) {
       return res.status(500).json({
@@ -83,7 +105,7 @@ router.post('/analyze', (req, res, next) => {
     }
 
     // Pass buffer directly to Gemini (no URL or media transport needed)
-    const result = await analyzeImageWithGemini(buffer, mimetype, originalname);
+    const result = await geminiService.analyzeImageWithGemini(buffer, mimetype, originalname);
 
     res.status(200).json(result);
   } catch (err) {

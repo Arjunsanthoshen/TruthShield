@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { UploadCloud } from 'lucide-react';
 
-const MAX_IMAGE_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_IMAGE_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
 
 const SUPPORTED_IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp'];
 const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -62,7 +62,7 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
       onError({
         type: 'SIZE_EXCEEDED',
         title: 'File Exceeds Size Limit',
-        message: `The selected image is ${sizeMB} MB, which exceeds the 25 MB limit. Please select a smaller image.`,
+        message: `The selected image is ${sizeMB} MB, which exceeds the 20 MB limit. Please select a smaller image.`,
         fileName
       });
       return;
@@ -112,11 +112,20 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
     <div className="w-full">
       <div
         id="dropzone-area"
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        aria-label="Upload media to verify. Drop an image here or press Enter or Space to browse."
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !disabled && fileInputRef.current?.click()}
-        className={`relative flex flex-col items-center justify-center p-8 sm:p-14 rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer text-center ${
+        onKeyDown={(e) => {
+          if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
+        className={`relative flex flex-col items-center justify-center p-8 sm:p-14 rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
           isDragOver
             ? 'border-emerald-400 bg-emerald-500/10 scale-[1.01] shadow-[0_0_40px_rgba(16,185,129,0.25)]'
             : 'border-slate-700/80 hover:border-slate-500 bg-slate-900/50 hover:bg-slate-900/80 shadow-xl'
@@ -126,6 +135,7 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
           ref={fileInputRef}
           type="file"
           id="media-file-input"
+          aria-label="Choose image file to analyze"
           accept=".jpg,.jpeg,.png,.webp,.mp4,.mp3,.wav"
           className="hidden"
           disabled={disabled}
@@ -179,7 +189,7 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
           </div>
 
           <p className="text-xs text-slate-400 font-mono">
-            Max image file size: 25 MB • Zero retention ephemeral scanning
+            Max image file size: 20 MB • Zero retention ephemeral scanning
           </p>
         </div>
 

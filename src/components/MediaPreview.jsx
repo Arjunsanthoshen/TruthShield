@@ -6,10 +6,16 @@ export default function MediaPreview({ file, previewUrl, onRemove, onAnalyze, is
 
   useEffect(() => {
     if (!previewUrl) return;
+    let cancelled = false;
     const img = new Image();
     img.src = previewUrl;
     img.onload = () => {
-      setDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      if (!cancelled) {
+        setDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      }
+    };
+    return () => {
+      cancelled = true;
     };
   }, [previewUrl]);
 
@@ -51,9 +57,10 @@ export default function MediaPreview({ file, previewUrl, onRemove, onAnalyze, is
           type="button"
           onClick={onRemove}
           disabled={isAnalyzing}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-rose-300 hover:text-rose-200 bg-rose-950/30 hover:bg-rose-950/60 border border-rose-800/40 hover:border-rose-700/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label={`Remove selected file ${file.name}`}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-rose-300 hover:text-rose-200 bg-rose-950/30 hover:bg-rose-950/60 border border-rose-800/40 hover:border-rose-700/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-4 h-4" aria-hidden="true" />
           <span>Remove file</span>
         </button>
       </div>
@@ -66,7 +73,7 @@ export default function MediaPreview({ file, previewUrl, onRemove, onAnalyze, is
           <div className="relative w-full max-h-[420px] rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950/90 shadow-2xl group flex items-center justify-center">
             <img
               src={previewUrl}
-              alt="Media Preview"
+              alt={`Preview of selected file: ${file.name}`}
               className="max-h-[380px] w-auto max-w-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-[1.01]"
             />
             {/* Subtle overlay watermark badge */}
@@ -131,7 +138,8 @@ export default function MediaPreview({ file, previewUrl, onRemove, onAnalyze, is
               type="button"
               onClick={onAnalyze}
               disabled={isAnalyzing}
-              className="w-full inline-flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold text-base text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 shadow-[0_0_30px_-5px_rgba(16,185,129,0.5)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed transform active:scale-[0.99]"
+              aria-label={isAnalyzing ? 'Analyzing image with Gemini Vision...' : 'Analyze media with Gemini Vision AI'}
+              className="w-full inline-flex items-center justify-center gap-3 py-4 px-6 rounded-xl font-bold text-base text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 shadow-[0_0_30px_-5px_rgba(16,185,129,0.5)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed transform active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
               {isAnalyzing ? (
                 <>

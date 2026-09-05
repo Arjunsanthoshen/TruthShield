@@ -19,10 +19,24 @@ export default function Navbar({ currentView, onNavigate }) {
     }
 
     verifyBackend();
-    const interval = setInterval(verifyBackend, 15000);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        verifyBackend();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        verifyBackend();
+      }
+    }, 60000);
+
     return () => {
       isMounted = false;
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, []);
 
@@ -53,7 +67,7 @@ export default function Navbar({ currentView, onNavigate }) {
         </button>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">
           <button
             onClick={() => onNavigate('analyze')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -84,6 +98,8 @@ export default function Navbar({ currentView, onNavigate }) {
 
         {/* Backend Status Indicator */}
         <div
+          role="status"
+          aria-label={`API backend status: ${apiStatus}`}
           title={`Backend Status: ${apiStatus}`}
           className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-xs font-mono"
         >
@@ -93,7 +109,7 @@ export default function Navbar({ currentView, onNavigate }) {
               : apiStatus === 'checking'
               ? 'bg-amber-400 animate-pulse'
               : 'bg-red-400'
-          }`} />
+          }`} aria-hidden="true" />
           <span className="text-slate-400 text-[11px]">
             {apiStatus === 'online' ? 'API Online' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline'}
           </span>

@@ -261,4 +261,28 @@ describe('TruthShield Backend API Integration Tests', () => {
     assert.strictEqual(res.headers.get('x-frame-options'), 'DENY');
     assert.strictEqual(res.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
   });
+
+  test('11. parseGeminiJson strips markdown fences and normalizes verdict, confidence, and limitations', () => {
+    const rawMarkdownFenced = "```json\n" + JSON.stringify({
+      verdict: "Unknown Verdict",
+      confidence: 1.5,
+      summary: "Sample assessment.",
+      signals: [{ name: "Artifacts", observation: "Found noise", impact: "supports_ai" }]
+    }) + "\n```";
+
+    const parsed = geminiService.parseGeminiJson(rawMarkdownFenced);
+    assert.strictEqual(parsed.verdict, 'Inconclusive');
+    assert.strictEqual(parsed.confidence, 1.0);
+    assert.strictEqual(parsed.summary, 'Sample assessment.');
+    assert.ok(Array.isArray(parsed.limitations));
+    assert.ok(parsed.limitations.some(l => l.includes('probabilistic')));
+  });
+
+  test('12. sanitizeErrorMessage redacts Google API keys and query parameters', () => {
+    const leakyMessage = 'Request failed: https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSyD_EXAMPLE_1234567890abcdefghijklm with error 403';
+    const sanitized = geminiService.sanitizeErrorMessage(leakyMessage);
+
+    assert.doesNotMatch(sanitized, /AIzaSyD_EXAMPLE/);
+    assert.match(sanitized, /\[REDACTED/);
+  });
 });

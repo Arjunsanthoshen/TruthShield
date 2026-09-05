@@ -238,4 +238,9 @@ export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'i
   };
 }
 
-export default { analyzeImageWithGemini };
+export { parseGeminiJson, sanitizeErrorMessage };
+export default {
+  analyzeImageWithGemini,
+  parseGeminiJson,
+  sanitizeErrorMessage
+};

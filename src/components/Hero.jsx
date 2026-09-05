@@ -60,7 +60,8 @@ export default function Hero({ onNavigate }) {
           <button
             id="hero-analyze-btn"
             onClick={() => onNavigate('analyze')}
-            className="inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-bold text-lg text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 shadow-[0_0_40px_-5px_rgba(16,185,129,0.6)] transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
+            aria-label="Analyze an Image in Media Verification Lab"
+            className="inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-bold text-lg text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 shadow-[0_0_40px_-5px_rgba(16,185,129,0.6)] transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
           >
             <ShieldCheck className="w-6 h-6 text-slate-950" />
             <span>Analyze an Image</span>

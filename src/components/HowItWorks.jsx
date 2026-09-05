@@ -97,7 +97,8 @@ export default function HowItWorks({ onNavigate }) {
           </div>
           <button
             onClick={() => onNavigate('analyze')}
-            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-all shadow-lg shadow-emerald-500/20"
+            aria-label="Analyze an Image in Media Verification Lab"
+            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-all shadow-lg shadow-emerald-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
           >
             <span>Analyze an Image</span>
             <ArrowRight className="w-4 h-4" />

@@ -41,7 +41,8 @@ export default function Home({ onNavigate }) {
             <span>•</span>
             <button 
               onClick={() => onNavigate('analyze')}
-              className="text-emerald-400 hover:text-emerald-300 transition-colors"
+              aria-label="Analyze Image in Media Verification Lab"
+              className="text-emerald-400 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400 rounded px-1"
             >
               Analyze Image
             </button>

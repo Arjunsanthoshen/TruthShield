@@ -56,8 +56,11 @@ app.use('/api', (req, res) => {
 const distPath = join(__dirname, '../dist');
 if (existsSync(distPath)) {
   app.use(express.static(distPath));
-  app.get('*', (req, res) => {
-    res.sendFile(join(distPath, 'index.html'));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      return res.sendFile(join(distPath, 'index.html'));
+    }
+    next();
   });
 } else if (isProduction) {
   console.warn('⚠️  dist/ folder not found. Run `npm run build` before starting the server in production.');

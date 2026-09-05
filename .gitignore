@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Uploads and temporary storage
+uploads/
+server/uploads/
+
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

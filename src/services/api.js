@@ -67,17 +67,3 @@ export async function analyzeMedia(file, _onProgress) {
     throw error;
   }
 }
-
-/**
- * Future integration stub: Ask TruthShield Gemini explainer
- * @param {string} prompt - User question or query
- * @param {object} [mediaContext] - Metadata or hash of analyzed media
- */
-export async function askTruthShield(prompt, mediaContext = {}) {
-  // To be integrated in Phase 3 with Gemini
-  console.info('askTruthShield invoked with prompt:', prompt, mediaContext);
-  return {
-    status: 'pending_phase_3',
-    response: 'Gemini reasoning assistant will be active in Phase 3.'
-  };
-}

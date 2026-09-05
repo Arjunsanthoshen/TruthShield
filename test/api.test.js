@@ -207,4 +207,58 @@ describe('TruthShield Backend API Integration Tests', () => {
       process.env.GEMINI_API_KEY = originalKey;
     }
   });
+
+  test('8. POST /api/analyze rejects oversized files exceeding the 20MB limit', async () => {
+    const form = new FormData();
+    // 20MB + 1KB buffer
+    const oversizedBuffer = Buffer.alloc(20 * 1024 * 1024 + 1024);
+    const bigBlob = new Blob([oversizedBuffer], { type: 'image/png' });
+    form.append('media', bigBlob, 'huge.png');
+
+    const res = await fetch(`${baseUrl}/api/analyze`, {
+      method: 'POST',
+      body: form
+    });
+
+    assert.strictEqual(res.status, 400);
+    const body = await res.json();
+    assert.strictEqual(body.success, false);
+    assert.match(body.error, /exceeds the 20MB limit/i);
+  });
+
+  test('9. POST /api/analyze handles Gemini upstream service errors safely without crashing', async () => {
+    const originalKey = process.env.GEMINI_API_KEY;
+    process.env.GEMINI_API_KEY = 'mock_test_key_truthshield';
+
+    mock.method(geminiService, 'analyzeImageWithGemini', async () => {
+      const err = new Error('Gemini API error (HTTP 503): Service Unavailable');
+      err.status = 502;
+      throw err;
+    });
+
+    try {
+      const form = new FormData();
+      const pngBlob = new Blob([validPngBuffer], { type: 'image/png' });
+      form.append('media', pngBlob, 'sample.png');
+
+      const res = await fetch(`${baseUrl}/api/analyze`, {
+        method: 'POST',
+        body: form
+      });
+
+      assert.strictEqual(res.status, 502);
+      const body = await res.json();
+      assert.strictEqual(body.success, false);
+      assert.match(body.error, /Gemini API error/i);
+    } finally {
+      process.env.GEMINI_API_KEY = originalKey;
+    }
+  });
+
+  test('10. Responses include standard security headers', async () => {
+    const res = await fetch(`${baseUrl}/api/health`);
+    assert.strictEqual(res.headers.get('x-content-type-options'), 'nosniff');
+    assert.strictEqual(res.headers.get('x-frame-options'), 'DENY');
+    assert.strictEqual(res.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
+  });
 });

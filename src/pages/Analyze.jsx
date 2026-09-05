@@ -144,11 +144,13 @@ export default function Analyze({ onNavigate }) {
 
         {/* Gemini Results Dashboard (shown when state is 'result') */}
         {uiState === 'result' && stateData && (
-          <AnalysisResult
-            result={stateData}
-            previewUrl={previewUrl}
-            onReset={handleReset}
-          />
+          <div role="region" aria-label="Media Analysis Results" aria-live="polite">
+            <AnalysisResult
+              result={stateData}
+              previewUrl={previewUrl}
+              onReset={handleReset}
+            />
+          </div>
         )}
 
         {/* Architecture & Privacy Pipeline Notes Box */}

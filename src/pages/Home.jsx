@@ -35,15 +35,15 @@ export default function Home({ onNavigate }) {
           </div>
 
           <div className="flex items-center gap-6 text-xs text-slate-400">
-            <span>Phase 1 Foundation</span>
+            <span>Hackathon Prototype</span>
             <span>•</span>
-            <span>Journalistic & Research Integrity</span>
+            <span>Journalistic &amp; Research Integrity</span>
             <span>•</span>
             <button 
               onClick={() => onNavigate('analyze')}
               className="text-emerald-400 hover:text-emerald-300 transition-colors"
             >
-              Analyze Media
+              Analyze Image
             </button>
           </div>
         </div>

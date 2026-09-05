@@ -1,55 +1,47 @@
-import { UploadCloud, Binary, BrainCircuit, FileCheck, ArrowRight } from 'lucide-react';
+import { UploadCloud, Sparkles, FileCheck, ArrowRight } from 'lucide-react';
+
+const steps = [
+  {
+    step: '01',
+    title: 'Upload Your Image',
+    icon: UploadCloud,
+    desc: 'Select a JPG, PNG, or WEBP image. It is processed in-memory and never stored on disk.',
+    tag: 'Zero Storage'
+  },
+  {
+    step: '02',
+    title: 'Gemini Analyzes It',
+    icon: Sparkles,
+    desc: 'Google Gemini examines the image for visual indicators of AI generation, synthetic artifacts, and manipulation patterns.',
+    tag: 'Gemini Vision AI'
+  },
+  {
+    step: '03',
+    title: 'Get an Assessment',
+    icon: FileCheck,
+    desc: 'Receive a confidence-based verdict — Likely Authentic, Likely AI-Generated, Potentially Manipulated, or Inconclusive — with the specific signals observed.',
+    tag: 'Explainable Results'
+  }
+];
 
 export default function HowItWorks({ onNavigate }) {
-  const steps = [
-    {
-      step: '01',
-      title: 'Upload & Secure Ingestion',
-      icon: UploadCloud,
-      desc: 'Files are validated in-memory, checked for EXIF metadata markers, and assigned a cryptographic SHA-256 fingerprint.',
-      tag: 'Zero Storage Retention'
-    },
-    {
-      step: '02',
-      title: 'Neural Forensic Detection',
-      icon: Binary,
-      desc: 'Media passes through deep learning forensic classifiers trained on diffusion models (Midjourney, DALL-E, Flux) and GAN artifacts.',
-      tag: 'Hive AI Integration'
-    },
-    {
-      step: '03',
-      title: 'Contextual Source Tracing',
-      icon: BrainCircuit,
-      desc: 'Multimodal Gemini reasoning evaluates source context, historical circulation, reverse search provenance, and common disinformation narratives.',
-      tag: 'Gemini Multimodal'
-    },
-    {
-      step: '04',
-      title: 'Explainable TruthScore',
-      icon: FileCheck,
-      desc: 'Receive a transparent verdict breaking down exact regions of manipulation, confidence metrics, and clear guidance before you share.',
-      tag: 'Actionable Transparency'
-    }
-  ];
-
   return (
     <section id="how-it-works" className="py-24 border-t border-slate-800/80 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-emerald-400 mb-4">
-            <span>Verification Architecture</span>
+            <span>How It Works</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
-            How TruthShield Verifies Media
+            Three Steps to Verify Media
           </h2>
           <p className="text-slate-400 text-base leading-relaxed">
-            A multi-stage defense against disinformation, deepfakes, and synthetic media engineered for journalists, researchers, and discerning users.
+            Fast, explainable, AI-powered image authenticity assessment — no account required.
           </p>
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
           {steps.map((item) => {
             const Icon = item.icon;
             return (
@@ -85,21 +77,29 @@ export default function HowItWorks({ onNavigate }) {
           })}
         </div>
 
-        {/* Bottom Call to Action banner */}
-        <div className="mt-16 p-8 rounded-2xl bg-gradient-to-r from-emerald-950/30 via-slate-900 to-cyan-950/30 border border-emerald-500/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+        {/* Disclaimer */}
+        <div className="mt-10 p-4 rounded-xl bg-amber-950/20 border border-amber-500/20 text-center">
+          <p className="text-xs text-amber-300/80 leading-relaxed">
+            <strong className="text-amber-300">Important:</strong> AI visual assessment is not definitive proof of authenticity or manipulation.
+            Results are probabilistic and may produce false positives or false negatives. Always apply independent judgment before sharing or acting on media.
+          </p>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-emerald-950/30 via-slate-900 to-cyan-950/30 border border-emerald-500/20 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-lg font-bold text-white mb-1">
-              Have an image you want to inspect right now?
+              Have an image you want to verify?
             </h3>
             <p className="text-sm text-slate-400">
-              Start with our Phase 1 image upload and validation testbed.
+              Upload it now and get a Gemini-powered authenticity assessment in seconds.
             </p>
           </div>
           <button
             onClick={() => onNavigate('analyze')}
             className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-all shadow-lg shadow-emerald-500/20"
           >
-            <span>Launch Analyze Page</span>
+            <span>Analyze an Image</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

@@ -1,172 +1,148 @@
-import { Image, Video, Music, Check, Clock, Layers } from 'lucide-react';
+import { Image, Video, Music, CheckCircle2, Clock, ArrowRight } from 'lucide-react';
+
+const mediaTypes = [
+  {
+    id: 'image',
+    icon: Image,
+    label: 'IMAGE',
+    title: 'Image Verification',
+    status: 'ACTIVE',
+    statusColor: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+    dotColor: 'bg-emerald-400',
+    statusIcon: CheckCircle2,
+    formats: 'JPG / PNG / WEBP',
+    availability: 'Available now',
+    availabilityColor: 'text-emerald-400',
+    description: 'Upload an image and receive a Gemini-powered assessment of whether it shows indicators of AI generation or manipulation.',
+    features: [
+      'AI generation indicators',
+      'Visual manipulation signals',
+      'Explained confidence assessment',
+      'Human-readable forensic summary'
+    ],
+    cardClass: 'border-emerald-500/30 bg-gradient-to-b from-emerald-950/20 to-slate-900/60',
+    active: true
+  },
+  {
+    id: 'video',
+    icon: Video,
+    label: 'VIDEO',
+    title: 'Video Forensics',
+    status: 'COMING SOON',
+    statusColor: 'bg-slate-700/60 text-slate-400 border-slate-700',
+    dotColor: 'bg-slate-500',
+    statusIcon: Clock,
+    formats: 'MP4 / WEBM',
+    availability: 'Deepfake and frame analysis planned',
+    availabilityColor: 'text-slate-500',
+    description: 'Frame-by-frame deepfake detection, lip-sync analysis, and temporal consistency evaluation. Not yet implemented.',
+    features: [
+      'Deepfake face-swap detection',
+      'Temporal frame consistency',
+      'Lip-sync verification'
+    ],
+    cardClass: 'border-slate-800 bg-slate-900/40 opacity-70',
+    active: false
+  },
+  {
+    id: 'audio',
+    icon: Music,
+    label: 'AUDIO',
+    title: 'Audio Authenticity',
+    status: 'COMING SOON',
+    statusColor: 'bg-slate-700/60 text-slate-400 border-slate-700',
+    dotColor: 'bg-slate-500',
+    statusIcon: Clock,
+    formats: 'MP3 / WAV',
+    availability: 'Synthetic voice analysis planned',
+    availabilityColor: 'text-slate-500',
+    description: 'Voice cloning detection and spectrogram analysis for synthetic speech identification. Not yet implemented.',
+    features: [
+      'Voice cloning signature detection',
+      'Spectrogram frequency analysis',
+      'Acoustic pattern evaluation'
+    ],
+    cardClass: 'border-slate-800 bg-slate-900/40 opacity-70',
+    active: false
+  }
+];
 
 export default function SupportedMedia({ onSelectMediaType }) {
-  const mediaTypes = [
-    {
-      id: 'image',
-      title: 'Image Verification',
-      category: 'Visual Forensics',
-      icon: Image,
-      status: 'Active in Phase 1',
-      statusType: 'active',
-      formats: ['JPG', 'JPEG', 'PNG', 'WEBP'],
-      maxSize: '25 MB',
-      description: 'Scans for GAN artifacts, diffusion model signatures, spliced boundaries, and EXIF timestamp anomalies.',
-      features: [
-        'AI Generation Probability',
-        'Synthetic Texture Artifacts',
-        'Compression & Metadata Audit',
-        'Direct Preview & Analysis'
-      ],
-      accentColor: 'from-emerald-500/20 to-teal-500/5',
-      borderColor: 'border-emerald-500/30',
-      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-      ctaText: 'Verify Image Now'
-    },
-    {
-      id: 'video',
-      title: 'Video Forensics',
-      category: 'Temporal Deepfakes',
-      icon: Video,
-      status: 'Planned for Phase 2',
-      statusType: 'upcoming',
-      formats: ['MP4', 'WEBM', 'MOV'],
-      maxSize: '100 MB',
-      description: 'Evaluates face-swap temporal consistency, lip-sync alignment, blink rate anomalies, and frame-by-frame generative blending.',
-      features: [
-        'Deepfake Face-Swap Detection',
-        'Frame-to-Frame Temporal Jitter',
-        'Facial Landmark Consistency',
-        'Audio-Visual Lip Synchronization'
-      ],
-      accentColor: 'from-cyan-500/20 to-blue-500/5',
-      borderColor: 'border-slate-800 hover:border-cyan-500/30',
-      badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-      ctaText: 'Coming in Phase 2'
-    },
-    {
-      id: 'audio',
-      title: 'Audio Authenticity',
-      category: 'Voice Cloning',
-      icon: Music,
-      status: 'Planned for Phase 2',
-      statusType: 'upcoming',
-      formats: ['MP3', 'WAV', 'AAC'],
-      maxSize: '50 MB',
-      description: 'Identifies synthetic speech clones, neural vocoder spectrogram signatures, and unnatural acoustic frequency gaps.',
-      features: [
-        'Voice Cloning Signature Match',
-        'Spectrogram Frequency Gaps',
-        'Acoustic Breath Pattern Analysis',
-        'Robotic Vocoder Artifacts'
-      ],
-      accentColor: 'from-indigo-500/20 to-purple-500/5',
-      borderColor: 'border-slate-800 hover:border-indigo-500/30',
-      badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
-      ctaText: 'Coming in Phase 2'
-    }
-  ];
-
   return (
     <section className="py-20 border-t border-slate-800/80 bg-slate-950/40 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-400 mb-4">
-            <Layers className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Multi-Modal Coverage</span>
-          </div>
+
+        <div className="text-center max-w-3xl mx-auto mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
-            Supported Media Modalities
+            Supported Media
           </h2>
           <p className="text-slate-400 text-base leading-relaxed">
-            TruthShield provides forensic inspection across multiple formats. Phase 1 activates our core image ingestion and inspection engine.
+            Image analysis is active now. Video and audio analysis are planned for future phases.
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {mediaTypes.map((card) => {
             const Icon = card.icon;
-            const isActive = card.statusType === 'active';
+            const StatusIcon = card.statusIcon;
 
             return (
               <div
                 key={card.id}
-                className={`relative flex flex-col justify-between p-7 rounded-2xl bg-slate-900/60 border ${card.borderColor} backdrop-blur-sm transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)]`}
+                className={`relative flex flex-col justify-between p-6 rounded-2xl border backdrop-blur-sm transition-all duration-300 ${card.cardClass} ${card.active ? 'hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)]' : ''}`}
               >
-                {/* Accent Top Gradient Glow */}
-                <div className={`absolute inset-x-0 top-0 h-32 rounded-t-2xl bg-gradient-to-b ${card.accentColor} pointer-events-none`} />
-
-                <div className="relative">
-                  {/* Top Bar with Icon and Status Badge */}
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700/60 shadow-inner">
-                      <Icon className="w-6 h-6 text-white" />
+                <div>
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-5">
+                    <div className={`p-3 rounded-xl border ${card.active ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-800 border-slate-700'}`}>
+                      <Icon className={`w-6 h-6 ${card.active ? 'text-emerald-400' : 'text-slate-500'}`} />
                     </div>
-
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-medium border ${card.badgeColor}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-semibold border ${card.statusColor}`}>
+                      <StatusIcon className="w-3 h-3" />
                       {card.status}
                     </span>
                   </div>
 
-                  <p className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 mb-1">
-                    {card.category}
-                  </p>
-                  <h3 className="text-xl font-bold text-white mb-3">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm text-slate-300 mb-6 leading-relaxed">
+                  <p className="text-xs font-mono font-semibold uppercase tracking-widest text-slate-500 mb-1">{card.label}</p>
+                  <h3 className={`text-xl font-bold mb-1 ${card.active ? 'text-white' : 'text-slate-400'}`}>{card.title}</h3>
+
+                  {/* Formats + availability */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-xs font-mono text-slate-500">{card.formats}</span>
+                    <span className="text-slate-700">·</span>
+                    <span className={`text-xs font-mono font-medium ${card.availabilityColor}`}>{card.availability}</span>
+                  </div>
+
+                  <p className={`text-sm leading-relaxed mb-5 ${card.active ? 'text-slate-300' : 'text-slate-500'}`}>
                     {card.description}
                   </p>
 
-                  {/* Formats Pills */}
-                  <div className="mb-6">
-                    <p className="text-xs font-medium text-slate-400 mb-2">Supported Formats:</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {card.formats.map((fmt) => (
-                        <span
-                          key={fmt}
-                          className="px-2.5 py-0.5 rounded-md bg-slate-800/80 border border-slate-700/80 text-xs font-mono font-medium text-slate-300"
-                        >
-                          {fmt}
-                        </span>
-                      ))}
-                      <span className="px-2 py-0.5 rounded-md text-xs font-mono text-slate-400">
-                        Max {card.maxSize}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Capabilities List */}
-                  <div className="space-y-2.5 pt-4 border-t border-slate-800/80 mb-8">
+                  {/* Features */}
+                  <ul className="space-y-2 mb-6">
                     {card.features.map((feat, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        <span>{feat}</span>
-                      </div>
+                      <li key={i} className={`flex items-center gap-2 text-xs ${card.active ? 'text-slate-300' : 'text-slate-600'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${card.dotColor}`} />
+                        {feat}
+                      </li>
                     ))}
+                  </ul>
+                </div>
+
+                {/* CTA */}
+                {card.active ? (
+                  <button
+                    onClick={() => onSelectMediaType('image')}
+                    className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
+                  >
+                    <span>Analyze an Image</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <div className="w-full py-3 px-4 rounded-xl text-sm font-medium text-slate-600 bg-slate-800/50 border border-slate-800 text-center flex items-center justify-center gap-2 cursor-not-allowed select-none">
+                    <Clock className="w-4 h-4" />
+                    <span>Not yet available</span>
                   </div>
-                </div>
-
-                {/* Card Action */}
-                <div className="relative pt-2">
-                  {isActive ? (
-                    <button
-                      onClick={() => onSelectMediaType('image')}
-                      className="w-full py-3 px-4 rounded-xl text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
-                    >
-                      <span>Upload & Verify Image</span>
-                    </button>
-                  ) : (
-                    <div className="w-full py-3 px-4 rounded-xl text-sm font-medium text-slate-400 bg-slate-800/50 border border-slate-800 text-center flex items-center justify-center gap-2 cursor-not-allowed">
-                      <Clock className="w-4 h-4 text-slate-400" />
-                      <span>{card.ctaText}</span>
-                    </div>
-                  )}
-                </div>
-
+                )}
               </div>
             );
           })}

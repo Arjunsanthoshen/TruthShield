@@ -56,7 +56,7 @@ export default function Analyze({ onNavigate }) {
     setStateData(null);
 
     try {
-      // Call backend API /api/analyze which communicates with Hive V3
+      // Call backend API /api/analyze which communicates with Gemini
       const result = await analyzeMedia(selectedFile);
       setUiState('result');
       setStateData(result);
@@ -90,7 +90,7 @@ export default function Analyze({ onNavigate }) {
 
         <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Hive Multi-Model Pipeline Active</span>
+          <span>Gemini Vision Analysis Active</span>
         </div>
       </div>
 
@@ -99,13 +99,13 @@ export default function Analyze({ onNavigate }) {
         <div className="mb-10 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-emerald-400 mb-3">
             <Shield className="w-3.5 h-3.5" />
-            <span>Phase 2 Real Detection</span>
+            <span>Gemini Multimodal Analysis</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
             Media Verification Lab
           </h1>
           <p className="text-slate-400 text-base sm:text-lg max-w-2xl">
-            Upload an image to inspect authenticity markers, deepfake indicators, and generative model signatures powered by Hive AI.
+            Upload an image and receive a Gemini-powered assessment of whether it shows indicators of AI generation or manipulation.
           </p>
         </div>
       )}
@@ -141,7 +141,7 @@ export default function Analyze({ onNavigate }) {
           />
         )}
 
-        {/* Real Hive Results Dashboard (shown when state is 'result') */}
+        {/* Gemini Results Dashboard (shown when state is 'result') */}
         {uiState === 'result' && stateData && (
           <AnalysisResult
             result={stateData}
@@ -156,8 +156,8 @@ export default function Analyze({ onNavigate }) {
             <div className="flex items-start gap-3">
               <Info className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                <span className="font-semibold text-slate-200">Ephemeral In-Memory Verification:</span>{' '}
-                Your media is sanitized and processed in-memory directly to TruthShield's Express backend, which calls Hive's V3 Image & Deepfake Detection models. Credentials remain strictly server-side.
+                <span className="font-semibold text-slate-200">Private & Ephemeral:</span>{' '}
+                Your image is processed in-memory by TruthShield's Express backend and sent directly to Google Gemini for analysis. It is never stored on disk. Your API credentials remain strictly server-side and are never exposed to the browser.
               </div>
             </div>
           </div>

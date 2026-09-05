@@ -8,6 +8,7 @@
     "client": "vite",
     "server": "node server/server.js",
     "build": "vite build",
+    "start": "NODE_ENV=production node server/server.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

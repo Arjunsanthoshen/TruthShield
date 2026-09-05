@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: truthshield
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false   # You will enter this manually in the Render dashboard
+    autoDeploy: true

@@ -11,12 +11,13 @@
 
 import { GoogleGenAI } from '@google/genai';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
 export const FALLBACK_GEMINI_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
   'gemini-3.5-flash',
   'gemini-flash-latest',
-  'gemini-3.6-flash',
-  'gemini-3.7-flash'
+  'gemini-3.6-flash'
 ];
 const REQUEST_TIMEOUT_MS = 30000;
 
@@ -35,7 +36,7 @@ function sleep(ms) {
 }
 
 /**
- * Invoke Gemini with a strict timeout guard
+ * Invoke Gemini with a strict timeout guard and direct JSON streaming for lowest latency
  */
 async function callGeminiWithTimeout(ai, model, contents, timeoutMs) {
   let timer;
@@ -48,12 +49,20 @@ async function callGeminiWithTimeout(ai, model, contents, timeoutMs) {
   });
 
   try {
-    const callPromise = ai.models.generateContent({ model, contents });
+    const callPromise = ai.models.generateContent({
+      model,
+      contents,
+      config: {
+        responseMimeType: 'application/json',
+        temperature: 0.1
+      }
+    });
     return await Promise.race([callPromise, timeoutPromise]);
   } finally {
     clearTimeout(timer);
   }
 }
+
 
 const ANALYSIS_PROMPT = `You are an image authenticity analysis assistant for TruthShield.
 
@@ -117,6 +126,9 @@ function parseGeminiJson(text) {
   let parsed;
   try {
     parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      parsed = parsed[0];
+    }
   } catch {
     throw new Error(`Gemini returned non-JSON response. Raw: ${text.slice(0, 200)}`);
   }
@@ -124,8 +136,16 @@ function parseGeminiJson(text) {
   // Validate required top-level fields
   const VALID_VERDICTS = ['Likely AI-Generated', 'Potentially Manipulated', 'Likely Authentic', 'Inconclusive'];
   if (!parsed.verdict || !VALID_VERDICTS.includes(parsed.verdict)) {
-    // Coerce to nearest valid verdict or default
-    parsed.verdict = 'Inconclusive';
+    const lower = (parsed.verdict || '').toLowerCase();
+    if (lower.includes('ai') || lower.includes('synthetic')) {
+      parsed.verdict = 'Likely AI-Generated';
+    } else if (lower.includes('manipulat') || lower.includes('edit')) {
+      parsed.verdict = 'Potentially Manipulated';
+    } else if (lower.includes('auth') || lower.includes('real')) {
+      parsed.verdict = 'Likely Authentic';
+    } else {
+      parsed.verdict = 'Inconclusive';
+    }
   }
 
   // Ensure numeric confidence in [0,1]

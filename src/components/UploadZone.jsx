@@ -145,16 +145,16 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
         {/* Ambient background glow inside dropzone */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/[0.03] to-cyan-500/[0.04] pointer-events-none" />
 
-        {/* Dynamic scanner laser effect when dragging over */}
+        {/* Active border accent when dragging over */}
         {isDragOver && (
-          <div className="absolute inset-x-8 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee] animate-laser-sweep pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_#22d3ee] pointer-events-none" />
         )}
 
-        {/* Upload Icon Container with floating micro-animation */}
-        <div className={`relative mb-6 p-5 sm:p-6 rounded-2xl transition-all duration-300 animate-float ${
+        {/* Upload Icon Container */}
+        <div className={`relative mb-6 p-5 sm:p-6 rounded-2xl transition-transform duration-200 ${
           isDragOver 
-            ? 'scale-115 bg-emerald-500/25 text-emerald-300 border border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)]' 
-            : 'bg-slate-950/80 text-emerald-400 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)]'
+            ? 'scale-105 bg-emerald-500/25 text-emerald-300 border border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.35)]' 
+            : 'bg-slate-950/80 text-emerald-400 border border-emerald-500/30 shadow-[0_0_16px_rgba(16,185,129,0.12)]'
         }`}>
           <UploadCloud className="w-10 h-10 sm:w-12 sm:h-12 stroke-[1.75]" />
           <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-cyan-400 ring-2 ring-slate-950 animate-ping" />

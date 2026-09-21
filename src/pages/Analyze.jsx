@@ -76,12 +76,7 @@ export default function Analyze({ onNavigate }) {
   };
 
   return (
-    <div className="relative min-h-screen">
-      {/* Dynamic Ambient Aurora Lighting for Glassmorphism Depth */}
-      <div className="absolute top-12 left-1/4 w-96 h-96 rounded-full aurora-ambient-1 pointer-events-none -z-10" />
-      <div className="absolute top-1/3 right-1/4 w-[28rem] h-[28rem] rounded-full aurora-ambient-2 pointer-events-none -z-10" />
-      <div className="absolute bottom-20 left-1/3 w-[30rem] h-[30rem] rounded-full aurora-ambient-3 pointer-events-none -z-10" />
-
+    <div className="relative min-h-screen bg-radial-vignette">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         
         {/* Breadcrumb & Navigation */}

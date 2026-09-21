@@ -14,187 +14,146 @@ import {
 } from 'lucide-react';
 
 const ANALYSIS_PIPELINE = [
-  { id: 'ingest', label: 'Matrix Ingestion', detail: 'Extracting high-resolution pixel tensors' },
-  { id: 'fft', label: 'Frequency Decomposition', detail: 'Scanning Fourier spectrum for generative lattice noise' },
-  { id: 'anatomy', label: 'Morphological Inspection', detail: 'Evaluating anatomical geometry & surface boundaries' },
-  { id: 'chroma', label: 'Vector Coherence', detail: 'Cross-referencing chromatic lighting & shadow trajectories' },
-  { id: 'gemini', label: 'Gemini Multimodal Inference', detail: 'Synthesizing forensic indicators into definitive assessment' }
+  { id: 'ingest', label: 'Matrix Ingestion', detail: 'Parsing high-resolution pixel tensors' },
+  { id: 'fft', label: 'Frequency Spectrum', detail: 'Scanning Fourier lattice for generative artifacts' },
+  { id: 'anatomy', label: 'Morphological Check', detail: 'Inspecting facial geometries & surface boundaries' },
+  { id: 'chroma', label: 'Vector Lighting', detail: 'Analyzing chromatic lighting & shadow trajectories' },
+  { id: 'gemini', label: 'Gemini Flash-Lite Inference', detail: 'Synthesizing forensic indicators into definitive assessment' }
 ];
 
 function DramaticHoloScanner({ onReset }) {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [telemetryTicks, setTelemetryTicks] = useState({
-    spectralBands: 3,
-    vectorsParsed: 1024,
-    latency: '34ms'
-  });
 
-  // Cycle through forensic pipeline steps
+  // Fast step progression synchronized with Gemini Flash-Lite's ~1.5s latency
   useEffect(() => {
-    const stepInterval = setInterval(() => {
+    const stepTimer = setInterval(() => {
       setActiveStepIndex((idx) => {
         if (idx < ANALYSIS_PIPELINE.length - 1) return idx + 1;
-        return idx; // hold at final inference step
+        return idx;
       });
-    }, 2800);
+    }, 320);
 
-    // Randomize telemetry slightly for authentic forensic HUD feel
-    const telemetryInterval = setInterval(() => {
-      setTelemetryTicks({
-        spectralBands: 3,
-        vectorsParsed: Math.floor(1024 + Math.random() * 3072),
-        latency: `${Math.floor(28 + Math.random() * 35)}ms`
-      });
-    }, 1200);
-
-    return () => {
-      clearInterval(stepInterval);
-      clearInterval(telemetryInterval);
-    };
+    return () => clearInterval(stepTimer);
   }, []);
 
   const currentStep = ANALYSIS_PIPELINE[activeStepIndex];
+  const progressPercent = Math.min(96, Math.round(((activeStepIndex + 1) / ANALYSIS_PIPELINE.length) * 100));
 
   return (
     <div
       role="status"
       aria-live="polite"
-      className="glass-card hud-corner-tl hud-corner-br rounded-3xl p-6 sm:p-10 border border-emerald-500/30 shadow-[0_0_60px_-15px_rgba(16,185,129,0.25)] mb-8 animate-fade-in relative overflow-hidden"
+      className="glass-card hud-corner-tl hud-corner-br rounded-2xl p-6 sm:p-8 border border-emerald-500/30 shadow-[0_4px_24px_rgba(16,185,129,0.15)] mb-8 animate-fade-in relative overflow-hidden"
     >
       <span className="sr-only">
         Analyzing image with Gemini Vision AI. Current phase: {currentStep.label} - {currentStep.detail}
       </span>
 
-      {/* Ambient background glows inside the glass card */}
-      <div className="absolute top-0 right-1/4 w-80 h-80 rounded-full bg-emerald-500/10 blur-[80px] pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-cyan-500/10 blur-[90px] pointer-events-none" />
+      {/* Subtle, non-blur gradient background accents */}
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/[0.04] via-transparent to-cyan-500/[0.04] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/70 to-transparent pointer-events-none" />
 
-      {/* Oscillating vertical laser scan beam */}
-      <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-laser-sweep pointer-events-none" />
-
-      {/* Top illuminated horizon line */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent pointer-events-none" />
-
-      <div className="relative z-10 space-y-8">
+      <div className="relative z-10 space-y-6">
         
-        {/* Top HUD Telemetry Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-800/80">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>LIVE FORENSIC TELEMETRY</span>
+        {/* Top HUD Status Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>FORENSIC ENGINE ACTIVE</span>
             </div>
             <span className="hidden sm:inline text-xs font-mono text-slate-500">
-              SYS::ACTIVE_SESSION
+              SYS::FLASH_LITE
             </span>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-mono text-slate-400">
             <span className="flex items-center gap-1.5">
               <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-              <span>VECTORS: {telemetryTicks.vectorsParsed}</span>
+              <span>GPU ACCEL</span>
             </span>
             <span className="flex items-center gap-1.5 hidden sm:flex">
               <Activity className="w-3.5 h-3.5 text-emerald-400" />
-              <span>PING: {telemetryTicks.latency}</span>
+              <span>TARGET: &lt;2.0s</span>
             </span>
             <span className="flex items-center gap-1.5">
               <Compass className="w-3.5 h-3.5 text-violet-400" />
-              <span>BANDS: RGB</span>
+              <span>RGB SPECTRUM</span>
             </span>
           </div>
         </div>
 
-        {/* Centerpiece: Dramatic Holographic Core */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 py-2">
+        {/* Lightweight Scanner Core & Step Details */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 py-1">
           
-          {/* Holographic Radar Circle */}
-          <div className="relative flex items-center justify-center w-48 h-48 sm:w-56 sm:h-56 shrink-0" aria-hidden="true">
-            {/* Outer dotted radar ring */}
-            <div className="absolute inset-0 rounded-full border border-dashed border-emerald-500/30 animate-radar-spin" />
+          {/* Streamlined Holographic Radar Ring */}
+          <div className="relative flex items-center justify-center w-36 h-36 shrink-0" aria-hidden="true">
+            {/* Outer spinning dashed ring */}
+            <div className="absolute inset-0 rounded-full border border-dashed border-emerald-500/35 animate-radar-spin" />
             
-            {/* Middle counter-rotating compass ring */}
-            <div className="absolute inset-3 rounded-full border border-cyan-500/30 animate-radar-spin-reverse">
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-            </div>
-
-            {/* Inner pulse ring */}
-            <div className="absolute inset-8 rounded-full border border-emerald-400/20 animate-pulse-ring" />
-
-            {/* Crosshair targeting reticle */}
-            <div className="absolute inset-x-0 top-1/2 h-px bg-emerald-500/20" />
-            <div className="absolute inset-y-0 left-1/2 w-px bg-emerald-500/20" />
+            {/* Inner steady ring */}
+            <div className="absolute inset-2.5 rounded-full border border-cyan-500/25" />
 
             {/* Central glowing core badge */}
-            <div className="relative w-20 h-20 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex flex-col items-center justify-center shadow-[0_0_35px_rgba(16,185,129,0.35)] backdrop-blur-md">
-              <ShieldCheck className="w-9 h-9 text-emerald-400 animate-pulse" />
-              <span className="text-[9px] font-mono text-emerald-400 font-bold tracking-widest mt-1">SCAN</span>
-            </div>
-
-            {/* Audio frequency wave dance indicator below reticle */}
-            <div className="absolute bottom-1 flex items-center gap-1">
-              <span className="w-1 bg-cyan-400 rounded-full animate-eq-1 shadow-[0_0_6px_#22d3ee]" />
-              <span className="w-1 bg-emerald-400 rounded-full animate-eq-2 shadow-[0_0_6px_#34d399]" />
-              <span className="w-1 bg-teal-300 rounded-full animate-eq-3 shadow-[0_0_6px_#5eead4]" />
-              <span className="w-1 bg-cyan-400 rounded-full animate-eq-4 shadow-[0_0_6px_#22d3ee]" />
-              <span className="w-1 bg-emerald-400 rounded-full animate-eq-5 shadow-[0_0_6px_#34d399]" />
+            <div className="relative w-16 h-16 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex flex-col items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.25)]">
+              <ShieldCheck className="w-8 h-8 text-emerald-400 animate-pulse" />
+              <span className="text-[8px] font-mono text-emerald-400 font-bold tracking-widest mt-0.5">SCAN</span>
             </div>
           </div>
 
-          {/* Central Title & Pipeline Step Details */}
-          <div className="flex-1 text-center lg:text-left space-y-4 max-w-xl">
+          {/* Title & Pipeline Step Details */}
+          <div className="flex-1 text-center sm:text-left space-y-3.5 w-full">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-500/40 text-xs font-mono text-cyan-300 shadow-sm">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900 border border-cyan-500/30 text-xs font-mono text-cyan-300">
+                <RefreshCw className="w-3 h-3 animate-spin text-cyan-400" />
                 <span>PHASE {activeStepIndex + 1} OF {ANALYSIS_PIPELINE.length}</span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight pt-1">
+              <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                 Deep Verification In Progress
               </h3>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 backdrop-blur-md space-y-1.5 shadow-inner">
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/90 space-y-1">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-emerald-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
                   <Scan className="w-3.5 h-3.5" />
                   {currentStep.label}
                 </span>
-                <span className="text-slate-400 font-bold">
-                  {Math.round(((activeStepIndex + 1) / ANALYSIS_PIPELINE.length) * 100)}%
+                <span className="text-cyan-400 font-bold">
+                  {progressPercent}%
                 </span>
               </div>
-              <p className="text-sm text-slate-200 leading-relaxed font-sans">
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
                 {currentStep.detail}
               </p>
             </div>
 
-            {/* Pipeline progress track */}
-            <div className="space-y-2">
-              <div className="w-full h-2 rounded-full bg-slate-950 border border-slate-800 overflow-hidden relative">
+            {/* Progress Bar */}
+            <div className="space-y-1.5">
+              <div className="w-full h-1.5 rounded-full bg-slate-950 border border-slate-800 overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-teal-300 rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(34,211,238,0.5)]"
-                  style={{ width: `${((activeStepIndex + 1) / ANALYSIS_PIPELINE.length) * 100}%` }}
+                  className="h-full bg-gradient-to-r from-emerald-500 via-cyan-400 to-teal-300 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(34,211,238,0.4)]"
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
 
-              {/* Step ticks indicator */}
-              <div className="grid grid-cols-5 gap-1.5 pt-1">
+              {/* Step indicator pills */}
+              <div className="grid grid-cols-5 gap-1 pt-0.5">
                 {ANALYSIS_PIPELINE.map((p, idx) => {
                   const isDone = idx < activeStepIndex;
                   const isCurrent = idx === activeStepIndex;
                   return (
                     <div 
                       key={p.id}
-                      className={`text-center py-1 px-1 rounded-md text-[10px] font-mono transition-all ${
+                      className={`text-center py-0.5 px-1 rounded text-[9px] font-mono transition-colors ${
                         isDone 
                           ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                           : isCurrent
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 shadow-[0_0_8px_rgba(6,182,212,0.3)]'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/50'
                           : 'bg-slate-900/40 text-slate-600 border border-slate-800/40'
                       }`}
                     >
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center gap-0.5">
                         {isDone ? (
                           <Check className="w-2.5 h-2.5" />
                         ) : isCurrent ? (
@@ -212,17 +171,17 @@ function DramaticHoloScanner({ onReset }) {
         </div>
 
         {/* Footer info & Cancel Action */}
-        <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
             <Binary className="w-3.5 h-3.5 text-slate-400" />
-            <span>Zero-retention client memory buffer &bull; Ephemeral pipeline</span>
+            <span>Zero-retention ephemeral memory buffer</span>
           </div>
 
           <button
             type="button"
             onClick={onReset}
             aria-label="Cancel image analysis and choose another file"
-            className="text-xs font-mono text-slate-400 hover:text-rose-400 transition-colors py-1 px-3 rounded-lg hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
+            className="text-xs font-mono text-slate-400 hover:text-rose-400 transition-colors py-1 px-2.5 rounded-lg hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400"
           >
             Abort Analysis
           </button>

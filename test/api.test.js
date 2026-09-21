@@ -285,4 +285,28 @@ describe('TruthShield Backend API Integration Tests', () => {
     assert.doesNotMatch(sanitized, /AIzaSyD_EXAMPLE/);
     assert.match(sanitized, /\[REDACTED/);
   });
+
+  test('13. getCandidateModels prioritizes configured model with fallbacks and deduplicates', () => {
+    const originalModel = process.env.GEMINI_MODEL;
+    try {
+      process.env.GEMINI_MODEL = 'gemini-custom-flash';
+      const models = geminiService.getCandidateModels();
+      assert.strictEqual(models[0], 'gemini-custom-flash');
+      assert.ok(models.includes('gemini-3.5-flash'));
+      assert.ok(models.includes('gemini-flash-latest'));
+      // No duplicates
+      assert.strictEqual(new Set(models).size, models.length);
+    } finally {
+      process.env.GEMINI_MODEL = originalModel;
+    }
+  });
+
+  test('14. GET /api/health includes geminiModel feature metadata', async () => {
+    const res = await fetch(`${baseUrl}/api/health`);
+    assert.strictEqual(res.status, 200);
+    const body = await res.json();
+    assert.ok(body.features.geminiModel);
+    assert.strictEqual(typeof body.features.geminiModel, 'string');
+  });
 });
+

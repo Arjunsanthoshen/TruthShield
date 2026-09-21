@@ -11,8 +11,49 @@
 
 import { GoogleGenAI } from '@google/genai';
 
-const GEMINI_MODEL = 'gemini-3.6-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
+export const FALLBACK_GEMINI_MODELS = [
+  'gemini-3.5-flash',
+  'gemini-flash-latest',
+  'gemini-3.6-flash',
+  'gemini-3.7-flash'
+];
 const REQUEST_TIMEOUT_MS = 30000;
+
+/**
+ * Get prioritized candidate models starting with the configured model
+ * followed by proven fallback models without duplicates.
+ */
+export function getCandidateModels() {
+  const configured = (process.env.GEMINI_MODEL || '').trim() || DEFAULT_GEMINI_MODEL;
+  const list = [configured, ...FALLBACK_GEMINI_MODELS];
+  return Array.from(new Set(list));
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Invoke Gemini with a strict timeout guard
+ */
+async function callGeminiWithTimeout(ai, model, contents, timeoutMs) {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const err = new Error(`Gemini request to ${model} timed out after ${timeoutMs / 1000} seconds.`);
+      err.status = 504;
+      reject(err);
+    }, timeoutMs);
+  });
+
+  try {
+    const callPromise = ai.models.generateContent({ model, contents });
+    return await Promise.race([callPromise, timeoutPromise]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 const ANALYSIS_PROMPT = `You are an image authenticity analysis assistant for TruthShield.
 
@@ -141,67 +182,105 @@ export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'i
   }
 
   const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-
-  // Convert buffer to base64 inline data
   const base64Data = fileBuffer.toString('base64');
+  const candidateModels = getCandidateModels();
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let text = null;
+  let successfulModel = null;
+  let lastError = null;
 
-  let text;
-  try {
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents: [
-        {
-          parts: [
+  for (let mIdx = 0; mIdx < candidateModels.length; mIdx++) {
+    const model = candidateModels[mIdx];
+
+    // Attempt up to 2 times for transient issues (503 high demand, 429 rate limit)
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const response = await callGeminiWithTimeout(
+          ai,
+          model,
+          [
             {
-              inlineData: {
-                mimeType,
-                data: base64Data
-              }
-            },
-            { text: ANALYSIS_PROMPT }
-          ]
+              parts: [
+                {
+                  inlineData: {
+                    mimeType,
+                    data: base64Data
+                  }
+                },
+                { text: ANALYSIS_PROMPT }
+              ]
+            }
+          ],
+          REQUEST_TIMEOUT_MS
+        );
+
+        text = response.text;
+        successfulModel = model;
+        break;
+      } catch (err) {
+        lastError = err;
+        const status = err.status || err.httpStatus || 500;
+        const msg = sanitizeErrorMessage(err.message);
+
+        // Terminal client errors: invalid format, safety policy, bad auth
+        // Changing models or retrying will not fix these.
+        if (status === 400) {
+          const badReqErr = new Error(`Gemini rejected the image (unsupported format or content policy): ${msg}`);
+          badReqErr.status = 400;
+          throw badReqErr;
         }
-      ]
-    });
+        if (status === 401 || status === 403) {
+          const authErr = new Error(`Gemini authentication failed (HTTP ${status}). Check GEMINI_API_KEY.`);
+          authErr.status = 401;
+          throw authErr;
+        }
 
-    text = response.text;
-  } catch (err) {
-    clearTimeout(timeoutId);
+        // Check if retryable
+        const isTemporary = status === 503 || status === 429 || status === 500 || status === 504;
+        if (isTemporary && attempt < 2) {
+          console.warn(`[GeminiService] Model ${model} returned HTTP ${status} (attempt ${attempt}/2). Retrying in 1.2s...`);
+          await sleep(1200);
+          continue;
+        }
 
-    if (err.name === 'AbortError') {
-      const timeoutErr = new Error(`Gemini analysis request timed out after ${REQUEST_TIMEOUT_MS / 1000} seconds.`);
-      timeoutErr.status = 504;
-      throw timeoutErr;
+        // If attempt >= 2 or non-retryable for this model, move to next model in fallback list
+        console.warn(`[GeminiService] Model ${model} failed (HTTP ${status}: ${msg}). Attempting fallback model if available...`);
+        break;
+      }
     }
 
-    // Handle Gemini API errors: extract status and message safely
-    const status = err.status || err.httpStatus || 500;
-    const msg = sanitizeErrorMessage(err.message);
+    if (text) {
+      break;
+    }
+  }
 
-    if (status === 400) {
-      const badReqErr = new Error(`Gemini rejected the image (unsupported format or content policy): ${msg}`);
-      badReqErr.status = 400;
-      throw badReqErr;
+  if (!text) {
+    const lastStatus = lastError?.status || lastError?.httpStatus || 502;
+    const lastMsg = sanitizeErrorMessage(lastError?.message);
+
+    if (lastStatus === 503) {
+      const highDemandErr = new Error(
+        'Gemini API error (HTTP 503): Google Gemini models are currently experiencing temporary high demand. Spikes in demand are usually temporary. Please try again shortly.'
+      );
+      highDemandErr.status = 502;
+      throw highDemandErr;
     }
-    if (status === 401 || status === 403) {
-      const authErr = new Error(`Gemini authentication failed (HTTP ${status}). Check GEMINI_API_KEY.`);
-      authErr.status = 401;
-      throw authErr;
-    }
-    if (status === 429) {
+
+    if (lastStatus === 429) {
       const rateErr = new Error('Gemini API rate limit exceeded. Please try again in a moment.');
       rateErr.status = 429;
       throw rateErr;
     }
 
-    const genericErr = new Error(`Gemini API error (HTTP ${status}): ${msg}`);
+    if (lastStatus === 504) {
+      const timeoutErr = new Error(`Gemini analysis request timed out after ${REQUEST_TIMEOUT_MS / 1000} seconds.`);
+      timeoutErr.status = 504;
+      throw timeoutErr;
+    }
+
+    const genericErr = new Error(`Gemini API error (HTTP ${lastStatus}): ${lastMsg}`);
     genericErr.status = 502;
     throw genericErr;
-  } finally {
-    clearTimeout(timeoutId);
   }
 
   // Parse and validate Gemini's structured JSON response
@@ -215,11 +294,12 @@ export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'i
     throw err;
   }
 
-  console.log(`[GeminiService] Analysis complete for "${filename}" — verdict: ${analysis.verdict}, confidence: ${analysis.confidence}`);
+  console.log(`[GeminiService] Analysis complete with ${successfulModel} for "${filename}" — verdict: ${analysis.verdict}, confidence: ${analysis.confidence}`);
 
   return {
     success: true,
     provider: 'Gemini',
+    model: successfulModel,
     file: {
       name: filename,
       size: fileBuffer.length,
@@ -242,5 +322,9 @@ export { parseGeminiJson, sanitizeErrorMessage };
 export default {
   analyzeImageWithGemini,
   parseGeminiJson,
-  sanitizeErrorMessage
+  sanitizeErrorMessage,
+  getCandidateModels,
+  DEFAULT_GEMINI_MODEL,
+  FALLBACK_GEMINI_MODELS
 };
+

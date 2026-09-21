@@ -20,6 +20,7 @@ router.get('/health', (req, res) => {
       videoAnalysis: 'planned_phase_3',
       audioAnalysis: 'planned_phase_3',
       geminiIntegration: hasGeminiKey ? 'active' : 'pending_key',
+      geminiModel: (process.env.GEMINI_MODEL || 'gemini-3.5-flash').trim(),
       sourceVerification: 'planned_phase_3'
     }
   });

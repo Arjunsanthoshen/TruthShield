@@ -76,40 +76,46 @@ export default function Analyze({ onNavigate }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-      
-      {/* Breadcrumb & Navigation */}
-      <div className="flex items-center justify-between mb-8">
-        <button
-          onClick={() => onNavigate('home')}
-          aria-label="Back to Overview page"
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded-lg"
-        >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          <span>Back to Overview</span>
-        </button>
+    <div className="relative min-h-screen">
+      {/* Dynamic Ambient Aurora Lighting for Glassmorphism Depth */}
+      <div className="absolute top-12 left-1/4 w-96 h-96 rounded-full aurora-ambient-1 pointer-events-none -z-10" />
+      <div className="absolute top-1/3 right-1/4 w-[28rem] h-[28rem] rounded-full aurora-ambient-2 pointer-events-none -z-10" />
+      <div className="absolute bottom-20 left-1/3 w-[30rem] h-[30rem] rounded-full aurora-ambient-3 pointer-events-none -z-10" />
 
-        <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-          <span>Gemini Vision Analysis Active</span>
-        </div>
-      </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        
+        {/* Breadcrumb & Navigation */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => onNavigate('home')}
+            aria-label="Back to Overview page"
+            className="glass-pill inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-mono text-slate-300 hover:text-white hover:border-slate-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>&larr; Overview Dossier</span>
+          </button>
 
-      {/* Page Title & Context Header */}
-      <div className="mb-8 animate-fade-in">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-emerald-400 mb-3">
-          <Shield className="w-3.5 h-3.5" aria-hidden="true" />
-          <span>Gemini Multimodal Analysis</span>
+          <div className="glass-pill flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono text-emerald-300 border-emerald-500/30">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+            <span>Gemini Vision Forensics Online</span>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-2">
-          Media Verification Lab
-        </h1>
-        {uiState !== 'result' && (
-          <p className="text-slate-400 text-base sm:text-lg max-w-2xl">
-            Upload an image and receive a Gemini-powered assessment of whether it shows indicators of AI generation or manipulation.
-          </p>
-        )}
-      </div>
+
+        {/* Page Title & Context Header */}
+        <div className="mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/80 border border-emerald-500/30 text-xs font-mono text-emerald-400 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <Shield className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>AI Authenticity &amp; Integrity Suite</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-2">
+            Media Verification Lab
+          </h1>
+          {uiState !== 'result' && (
+            <p className="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+              Upload an image to execute Google Gemini multimodal forensic inspection — detecting diffusion noise patterns, synthetic artifacts, and image compositing indicators.
+            </p>
+          )}
+        </div>
 
       {/* Alert / State Feedback Card for invalid_file, loading, and error states */}
       <UIStateCard
@@ -169,5 +175,6 @@ export default function Analyze({ onNavigate }) {
       </div>
 
     </div>
+  </div>
   );
 }

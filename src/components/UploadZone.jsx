@@ -109,7 +109,7 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-4">
       <div
         id="dropzone-area"
         role="button"
@@ -125,10 +125,10 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
             fileInputRef.current?.click();
           }
         }}
-        className={`relative flex flex-col items-center justify-center p-8 sm:p-14 rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
+        className={`glass-card-interactive hud-corner-tl hud-corner-br relative flex flex-col items-center justify-center p-8 sm:p-14 rounded-3xl border-2 border-dashed transition-all duration-300 cursor-pointer text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 overflow-hidden ${
           isDragOver
-            ? 'border-emerald-400 bg-emerald-500/10 scale-[1.01] shadow-[0_0_40px_rgba(16,185,129,0.25)]'
-            : 'border-slate-700/80 hover:border-slate-500 bg-slate-900/50 hover:bg-slate-900/80 shadow-xl'
+            ? 'border-emerald-400 bg-emerald-500/15 scale-[1.01] shadow-[0_0_50px_rgba(16,185,129,0.35)]'
+            : 'border-slate-700/80 hover:border-cyan-400/50 hover:shadow-[0_0_35px_rgba(6,182,212,0.15)]'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <input
@@ -142,27 +142,31 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
           onChange={handleFileInputChange}
         />
 
+        {/* Ambient background glow inside dropzone */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/[0.03] to-cyan-500/[0.04] pointer-events-none" />
+
         {/* Dynamic scanner laser effect when dragging over */}
         {isDragOver && (
-          <div className="absolute inset-x-8 top-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent scan-line pointer-events-none" />
+          <div className="absolute inset-x-8 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee] animate-laser-sweep pointer-events-none" />
         )}
 
-        {/* Upload Icon Container */}
-        <div className={`relative mb-6 p-5 rounded-2xl transition-transform duration-300 ${
+        {/* Upload Icon Container with floating micro-animation */}
+        <div className={`relative mb-6 p-5 sm:p-6 rounded-2xl transition-all duration-300 animate-float ${
           isDragOver 
-            ? 'scale-110 bg-emerald-500/20 text-emerald-300 border border-emerald-400/50' 
-            : 'bg-slate-800/80 text-emerald-400 border border-slate-700 shadow-inner'
+            ? 'scale-115 bg-emerald-500/25 text-emerald-300 border border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.4)]' 
+            : 'bg-slate-950/80 text-emerald-400 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)]'
         }`}>
-          <UploadCloud className="w-10 h-10 stroke-[1.75]" />
+          <UploadCloud className="w-10 h-10 sm:w-12 sm:h-12 stroke-[1.75]" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-cyan-400 ring-2 ring-slate-950 animate-ping" />
         </div>
 
         {/* Primary Prompt Text */}
-        <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 tracking-tight">
-          Upload media to verify
+        <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2 tracking-tight">
+          Drop media here for instant forensic analysis
         </h3>
 
-        <p className="text-slate-400 text-sm sm:text-base max-w-md mb-6">
-          Drag and drop your file here or <span className="text-emerald-400 font-semibold underline underline-offset-4 hover:text-emerald-300">browse</span>
+        <p className="text-slate-300 text-sm sm:text-base max-w-md mb-6">
+          Drag and drop your file or <span className="text-cyan-400 font-semibold underline underline-offset-4 hover:text-cyan-300">browse local files</span>
         </p>
 
         {/* Supported Format Badges */}
@@ -172,7 +176,7 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
             {['JPG', 'JPEG', 'PNG', 'WEBP'].map((fmt) => (
               <span
                 key={fmt}
-                className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-medium"
+                className="px-2.5 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-medium shadow-sm"
               >
                 {fmt}
               </span>
@@ -181,15 +185,15 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
               <span
                 key={fmt}
                 title="Phase 2 Modality"
-                className="px-2 py-0.5 rounded-md bg-slate-800/60 border border-slate-700/60 text-slate-400 text-xs font-mono"
+                className="px-2 py-0.5 rounded-lg bg-slate-900/80 border border-slate-800 text-slate-500 text-xs font-mono"
               >
                 {fmt}
               </span>
             ))}
           </div>
 
-          <p className="text-xs text-slate-400 font-mono">
-            Max image file size: 20 MB • Zero retention ephemeral scanning
+          <p className="text-xs text-slate-500 font-mono">
+            Maximum file size: 20 MB &bull; In-memory zero retention processing
           </p>
         </div>
 
@@ -197,3 +201,4 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
     </div>
   );
 }
+

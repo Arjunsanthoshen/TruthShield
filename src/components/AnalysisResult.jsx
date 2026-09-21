@@ -12,12 +12,16 @@ import {
   RotateCcw,
   FileCode,
   Sparkles,
-  ExternalLink,
-  CheckCircle2
+  CheckCircle2,
+  Copy,
+  Check,
+  Download,
+  Crosshair,
+  Layers
 } from 'lucide-react';
 
 /**
- * Map a Gemini verdict string to theme tokens.
+ * Map a Gemini verdict string to visual theme tokens.
  */
 function getTheme(verdict) {
   switch (verdict) {
@@ -25,133 +29,145 @@ function getTheme(verdict) {
       return {
         icon: ShieldCheck,
         iconColor: 'text-emerald-400',
-        iconBg: 'bg-emerald-500/15 border-emerald-500/40',
-        bannerBg: 'from-emerald-950/50 via-slate-900 to-slate-900',
+        iconBg: 'bg-emerald-500/15 border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.3)]',
+        bannerBg: 'from-emerald-950/60 via-slate-900/80 to-slate-950/90',
         border: 'border-emerald-500/40',
-        glow: 'shadow-[0_0_40px_-8px_rgba(16,185,129,0.25)]',
-        badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-        bar: 'from-emerald-500 to-teal-400',
+        glow: 'shadow-[0_0_50px_-10px_rgba(16,185,129,0.3)]',
+        badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
+        bar: 'from-emerald-500 via-teal-400 to-cyan-400',
         accent: 'text-emerald-400',
-        tagline: 'No significant AI indicators detected'
+        strokeColor: '#34d399',
+        tagline: 'No significant AI generation indicators detected',
+        confidenceTier: 'HIGH FIDELITY AUTHENTIC'
       };
     case 'Potentially Manipulated':
       return {
         icon: AlertTriangle,
         iconColor: 'text-amber-400',
-        iconBg: 'bg-amber-500/15 border-amber-500/40',
-        bannerBg: 'from-amber-950/50 via-slate-900 to-slate-900',
+        iconBg: 'bg-amber-500/15 border-amber-500/40 shadow-[0_0_25px_rgba(245,158,11,0.25)]',
+        bannerBg: 'from-amber-950/60 via-slate-900/80 to-slate-950/90',
         border: 'border-amber-500/40',
-        glow: 'shadow-[0_0_40px_-8px_rgba(245,158,11,0.20)]',
-        badge: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-        bar: 'from-amber-500 to-yellow-400',
+        glow: 'shadow-[0_0_50px_-10px_rgba(245,158,11,0.25)]',
+        badge: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+        bar: 'from-amber-500 via-yellow-400 to-orange-400',
         accent: 'text-amber-400',
-        tagline: 'Signs of possible editing or compositing'
+        strokeColor: '#fbbf24',
+        tagline: 'Indicators of digital compositing or post-processing detected',
+        confidenceTier: 'POTENTIAL MANIPULATION DETECTED'
       };
     case 'Likely AI-Generated':
       return {
         icon: ShieldAlert,
         iconColor: 'text-rose-400',
-        iconBg: 'bg-rose-500/15 border-rose-500/40',
-        bannerBg: 'from-rose-950/50 via-slate-900 to-slate-900',
+        iconBg: 'bg-rose-500/15 border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.3)]',
+        bannerBg: 'from-rose-950/60 via-slate-900/80 to-slate-950/90',
         border: 'border-rose-500/40',
-        glow: 'shadow-[0_0_40px_-8px_rgba(244,63,94,0.20)]',
-        badge: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
-        bar: 'from-rose-500 to-pink-400',
+        glow: 'shadow-[0_0_50px_-10px_rgba(244,63,94,0.3)]',
+        badge: 'bg-rose-500/15 text-rose-300 border-rose-500/40',
+        bar: 'from-rose-500 via-pink-500 to-red-400',
         accent: 'text-rose-400',
-        tagline: 'Visual indicators suggest synthetic origin'
+        strokeColor: '#fb7185',
+        tagline: 'Strong structural & diffusion artifacts consistent with generative AI',
+        confidenceTier: 'SYNTHETIC ORIGIN LIKELY'
       };
     default: // Inconclusive
       return {
         icon: HelpCircle,
         iconColor: 'text-cyan-400',
-        iconBg: 'bg-cyan-500/15 border-cyan-500/40',
-        bannerBg: 'from-slate-900 via-slate-900 to-cyan-950/20',
-        border: 'border-slate-700',
-        glow: 'shadow-[0_0_30px_rgba(14,165,233,0.10)]',
-        badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-        bar: 'from-cyan-500 to-sky-400',
+        iconBg: 'bg-cyan-500/15 border-cyan-500/40 shadow-[0_0_25px_rgba(6,182,212,0.2)]',
+        bannerBg: 'from-slate-900/90 via-slate-900/80 to-cyan-950/40',
+        border: 'border-cyan-500/30',
+        glow: 'shadow-[0_0_40px_-10px_rgba(6,182,212,0.2)]',
+        badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/40',
+        bar: 'from-cyan-500 via-sky-400 to-blue-400',
         accent: 'text-cyan-400',
-        tagline: 'Insufficient evidence for a clear verdict'
+        strokeColor: '#38bdf8',
+        tagline: 'Insufficient visual indicators to confirm or deny synthetic origin',
+        confidenceTier: 'EVALUATION INCONCLUSIVE'
       };
   }
 }
 
-/** Confidence bar with gradient fill */
-function ConfidenceBar({ confidence, bar }) {
+/**
+ * Circular HUD Confidence Gauge Meter
+ */
+function CircularGaugeMeter({ confidence, strokeColor }) {
   const pct = Math.round((confidence || 0) * 100);
+  const radius = 46;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (pct / 100) * circumference;
+
   return (
-    <div>
-      <div className="flex justify-between items-baseline mb-2">
-        <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">Assessment Confidence</span>
-        <span className="text-3xl font-extrabold font-mono text-white">{pct}%</span>
-      </div>
-      <div
-        role="progressbar"
-        aria-valuenow={pct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`Assessment confidence: ${pct} percent`}
-        className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden"
-      >
-        <div
-          className={`h-full rounded-full bg-gradient-to-r ${bar} transition-all duration-700`}
-          style={{ width: `${pct}%` }}
+    <div className="relative flex flex-col items-center justify-center">
+      <svg className="w-32 h-32 -rotate-90 transform" viewBox="0 0 110 110">
+        {/* Track background */}
+        <circle
+          cx="55"
+          cy="55"
+          r={radius}
+          stroke="rgba(255, 255, 255, 0.08)"
+          strokeWidth="8"
+          fill="transparent"
         />
+        {/* Progress Arc */}
+        <circle
+          cx="55"
+          cy="55"
+          r={radius}
+          stroke={strokeColor}
+          strokeWidth="8"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          fill="transparent"
+          className="transition-all duration-1000 ease-out"
+          style={{ filter: `drop-shadow(0 0 6px ${strokeColor})` }}
+        />
+      </svg>
+      {/* Centered Value */}
+      <div className="absolute flex flex-col items-center justify-center text-center">
+        <span className="text-2xl sm:text-3xl font-extrabold font-mono text-white tracking-tighter">
+          {pct}%
+        </span>
+        <span className="text-[9px] font-mono uppercase text-slate-400 tracking-wider">
+          CONFIDENCE
+        </span>
       </div>
-      <p className="text-[11px] font-mono text-slate-500 mt-1.5">
-        Reflects Gemini&apos;s confidence in the observable evidence — not objective truth
-      </p>
     </div>
   );
 }
 
-/** Impact pill for a signal */
+/** Impact pill for an individual forensic signal */
 function ImpactPill({ impact }) {
   if (impact === 'supports_ai') {
-    return <span className="shrink-0 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30">AI Indicator</span>;
+    return (
+      <span className="shrink-0 text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/35 shadow-[0_0_10px_rgba(244,63,94,0.15)] flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+        AI Indicator
+      </span>
+    );
   }
   if (impact === 'supports_authentic') {
-    return <span className="shrink-0 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Authentic Signal</span>;
+    return (
+      <span className="shrink-0 text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/35 shadow-[0_0_10px_rgba(16,185,129,0.15)] flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+        Authentic Signal
+      </span>
+    );
   }
-  return <span className="shrink-0 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 border border-slate-600">Neutral</span>;
-}
-
-/** Short guidance based on verdict */
-function getGuidance(verdict) {
-  switch (verdict) {
-    case 'Likely Authentic':
-      return {
-        icon: CheckCircle2,
-        color: 'text-emerald-400',
-        bg: 'bg-emerald-950/30 border-emerald-500/20',
-        text: 'No strong AI indicators were found. Still, consider verifying the original source, publication context, and whether the content matches other known reporting before sharing.'
-      };
-    case 'Likely AI-Generated':
-      return {
-        icon: ShieldAlert,
-        color: 'text-rose-400',
-        bg: 'bg-rose-950/30 border-rose-500/20',
-        text: 'Visual signals suggest this image may be AI-generated. Treat it with caution. Investigate the source and context independently before sharing or acting on it.'
-      };
-    case 'Potentially Manipulated':
-      return {
-        icon: AlertTriangle,
-        color: 'text-amber-400',
-        bg: 'bg-amber-950/30 border-amber-500/20',
-        text: 'Indicators of possible editing were detected. Consider verifying the original image from a trustworthy source and cross-referencing publication context before sharing.'
-      };
-    default:
-      return {
-        icon: HelpCircle,
-        color: 'text-cyan-400',
-        bg: 'bg-cyan-950/20 border-cyan-500/20',
-        text: 'The assessment was inconclusive. Apply independent judgment, verify the source, and cross-reference with other information before sharing.'
-      };
-  }
+  return (
+    <span className="shrink-0 text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1">
+      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+      Neutral Observation
+    </span>
+  );
 }
 
 export default function AnalysisResult({ result, previewUrl, onReset }) {
   const [showRaw, setShowRaw] = useState(false);
+  const [copiedSummary, setCopiedSummary] = useState(false);
+  const [showForensicGrid, setShowForensicGrid] = useState(false);
+  const [signalFilter, setSignalFilter] = useState('all'); // 'all' | 'ai' | 'authentic'
 
   if (!result || !result.analysis) return null;
 
@@ -169,181 +185,375 @@ export default function AnalysisResult({ result, previewUrl, onReset }) {
   const file = result.file || {};
   const theme = getTheme(verdict);
   const VerdictIcon = theme.icon;
-  const guidance = getGuidance(verdict);
-  const GuidanceIcon = guidance.icon;
+
+  const handleCopySummary = () => {
+    const textToCopy = `[TruthShield Forensic Report]\nVerdict: ${verdict} (${Math.round((confidence || 0) * 100)}% Confidence)\nFile: ${file.name || 'image'}\nAssessment: ${summary}`;
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedSummary(true);
+    setTimeout(() => setCopiedSummary(false), 2000);
+  };
+
+  const handleDownloadJson = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `truthshield-analysis-${file.name || 'image'}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  // Filter signals according to user tab selection
+  const filteredSignals = signals.filter((s) => {
+    if (signalFilter === 'ai') return s.impact === 'supports_ai';
+    if (signalFilter === 'authentic') return s.impact === 'supports_authentic';
+    return true;
+  });
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
 
-      {/* ── VERDICT BANNER ── */}
-      <div className={`rounded-3xl bg-gradient-to-br ${theme.bannerBg} border ${theme.border} ${theme.glow} overflow-hidden relative`}>
+      {/* ── 1. EXECUTIVE VERDICT HERO CARD ── */}
+      <div className={`glass-card hud-corner-tl hud-corner-br rounded-3xl bg-gradient-to-br ${theme.bannerBg} border ${theme.border} ${theme.glow} overflow-hidden relative`}>
+        
+        {/* Shimmer top glow line */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent pointer-events-none" />
 
-        {/* Top edge shimmer line */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent pointer-events-none" />
+        <div className="p-6 sm:p-10 relative z-10">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
 
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-
-            {/* Icon + verdict text */}
-            <div className="flex items-start gap-4 sm:gap-5 flex-1">
-              <div className={`p-4 rounded-2xl ${theme.iconBg} border shrink-0`}>
-                <VerdictIcon className={`w-9 h-9 sm:w-11 sm:h-11 ${theme.iconColor}`} />
+            {/* Left: Icon, Badge, Verdict Title */}
+            <div className="flex items-start sm:items-center gap-5 sm:gap-6 flex-1 min-w-0">
+              <div className={`p-4 sm:p-5 rounded-2xl ${theme.iconBg} border shrink-0 backdrop-blur-md`}>
+                <VerdictIcon className={`w-10 h-10 sm:w-12 sm:h-12 ${theme.iconColor}`} />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className={`text-[11px] font-mono font-semibold uppercase tracking-wider px-3 py-1 rounded-full border ${theme.badge}`}>
-                    Gemini Multimodal Analysis
+                  <span className={`text-[11px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${theme.badge}`}>
+                    {theme.confidenceTier}
                   </span>
-                  <span className="flex items-center gap-1 text-[11px] font-mono text-slate-500">
-                    <Sparkles className="w-3 h-3" /> Google Gemini Vision
+                  <span className="flex items-center gap-1.5 text-xs font-mono text-slate-400 bg-slate-950/60 px-2.5 py-0.5 rounded-full border border-slate-800">
+                    <Sparkles className="w-3 h-3 text-cyan-400" />
+                    <span>Gemini Vision Forensics</span>
                   </span>
                 </div>
 
-                {/* Section label */}
-                <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-1">Verdict</p>
-
-                <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-1">
+                <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-2">
                   {verdict}
                 </h2>
-                <p className={`text-sm font-mono ${theme.accent} mb-4`}>{theme.tagline}</p>
-
-                {/* Confidence bar */}
-                <ConfidenceBar confidence={confidence} bar={theme.bar} />
+                <p className={`text-sm sm:text-base font-medium ${theme.accent} leading-snug`}>
+                  {theme.tagline}
+                </p>
               </div>
             </div>
 
-            {/* Reset button */}
-            <div className="shrink-0">
+            {/* Center / Right: Circular Gauge & Actions */}
+            <div className="flex flex-col sm:flex-row lg:flex-row items-center gap-6 shrink-0 border-t lg:border-t-0 pt-6 lg:pt-0 border-slate-800/80">
+              {/* Radial Gauge */}
+              <CircularGaugeMeter
+                confidence={confidence}
+                strokeColor={theme.strokeColor}
+              />
+
+              {/* Action Buttons Column */}
+              <div className="flex flex-col gap-2.5 w-full sm:w-auto">
+                <button
+                  id="analyze-another-btn"
+                  type="button"
+                  onClick={onReset}
+                  aria-label="Analyze another image"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.35)] transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                >
+                  <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                  <span>Analyze Another</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopySummary}
+                    aria-label="Copy summary to clipboard"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-medium text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+                  >
+                    {copiedSummary ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedSummary ? 'Copied!' : 'Copy Summary'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadJson}
+                    aria-label="Download JSON report"
+                    className="inline-flex items-center justify-center p-2 rounded-xl text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+                    title="Export JSON Report"
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 2. EXECUTIVE REASONING SUMMARY ── */}
+      <div className="glass-card rounded-2xl p-6 sm:p-7 border border-slate-800/90 shadow-lg">
+        <div className="flex items-center justify-between gap-4 mb-3 pb-2 border-b border-slate-800/80">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Executive Forensic Assessment
+          </span>
+          <span className="text-[11px] font-mono text-slate-500">
+            ENGINE_INFERENCE_SYNTHESIS
+          </span>
+        </div>
+        <p className="text-base sm:text-lg text-slate-100 leading-relaxed font-normal">
+          &ldquo;{summary}&rdquo;
+        </p>
+      </div>
+
+      {/* ── 3. VISUAL INSPECTION HUD & FORENSIC SIGNALS ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {/* Left Col: Interactive Image Preview HUD */}
+        <div className="lg:col-span-5 glass-card rounded-2xl p-5 border border-slate-800/90 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Crosshair className="w-3.5 h-3.5 text-cyan-400" />
+                Target Specimen
+              </span>
+
+              {/* Forensic Grid Toggle */}
               <button
-                id="analyze-another-btn"
                 type="button"
-                onClick={onReset}
-                aria-label="Analyze another image"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                onClick={() => setShowForensicGrid(!showForensicGrid)}
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-md border transition-all ${
+                  showForensicGrid
+                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50 shadow-[0_0_8px_rgba(6,182,212,0.3)]'
+                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                }`}
               >
-                <RotateCcw className="w-4 h-4" aria-hidden="true" />
-                <span>Analyze Another</span>
+                {showForensicGrid ? 'Forensic Grid: ON' : 'Forensic Grid: OFF'}
               </button>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* ── WHY? (Gemini summary) ── */}
-      <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-        <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-2">Why?</p>
-        <p className="text-base text-slate-200 leading-relaxed">{summary}</p>
-      </div>
+            {/* Specimen Frame */}
+            {previewUrl && (
+              <div className="relative rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center max-h-72 shadow-inner group">
+                <img
+                  src={previewUrl}
+                  alt={file.name ? `Analyzed preview: ${file.name}` : 'Analyzed specimen preview'}
+                  className="max-h-72 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                />
 
-      {/* ── VISUAL SIGNALS + FILE INFO row ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-        {/* File thumbnail + meta */}
-        <div className="lg:col-span-4 p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-          {previewUrl && (
-            <div className="rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center max-h-52">
-              <img
-                src={previewUrl}
-                alt={file.name ? `Analyzed file preview: ${file.name}` : 'Analyzed image preview'}
-                className="max-h-52 w-auto max-w-full object-contain"
-              />
-            </div>
-          )}
-          <div>
-            <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-2">File</p>
-            <p className="text-sm font-mono text-white break-all mb-3">{file.name || 'image'}</p>
-            <div className="space-y-1 text-xs font-mono text-slate-500">
-              <div className="flex justify-between"><span>Type</span><span className="text-slate-300">{file.type}</span></div>
-              <div className="flex justify-between"><span>Size</span><span className="text-slate-300">{file.size ? `${(file.size / 1024).toFixed(1)} KB` : '—'}</span></div>
-              {analyzedAt && <div className="flex justify-between"><span>Analyzed</span><span className="text-slate-300">{new Date(analyzedAt).toLocaleTimeString()}</span></div>}
-              <div className="flex justify-between"><span>Engine</span><span className="text-cyan-400">Gemini Vision</span></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Forensic signals */}
-        <div className="lg:col-span-8 p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-1 flex items-center gap-2">
-            <Eye className="w-3.5 h-3.5 text-cyan-400" /> Visual Signals
-          </p>
-          <p className="text-xs text-slate-500 mb-4">Observable characteristics reported by Gemini</p>
-
-          {signals.length > 0 ? (
-            <div className="space-y-3">
-              {signals.map((signal, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80">
-                  <div className="flex items-start justify-between gap-3 mb-1.5">
-                    <span className="text-sm font-semibold text-white">{signal.name}</span>
-                    <ImpactPill impact={signal.impact} />
+                {/* Optional Forensic HUD Grid Overlay */}
+                {showForensicGrid && (
+                  <div className="absolute inset-0 bg-cyber-grid bg-[size:16px_16px] pointer-events-none opacity-60 border border-cyan-500/40">
+                    <div className="absolute inset-x-0 top-1/2 h-px bg-cyan-400/40" />
+                    <div className="absolute inset-y-0 left-1/2 w-px bg-cyan-400/40" />
+                    <span className="absolute top-2 left-2 text-[9px] font-mono text-cyan-400 bg-slate-950/80 px-1.5 py-0.5 rounded">
+                      SPECTRAL_MAP_ACTIVE
+                    </span>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">{signal.observation}</p>
+                )}
+
+                {/* Corner reticles */}
+                <div className="absolute top-2 right-2 p-1 rounded bg-slate-950/80 text-[10px] font-mono text-slate-400 border border-slate-800">
+                  SPEC_01
                 </div>
-              ))}
+              </div>
+            )}
+          </div>
+
+          {/* Specimen File Metadata */}
+          <div className="pt-4 mt-4 border-t border-slate-800/80 space-y-2 text-xs font-mono text-slate-400">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">File Identifier:</span>
+              <span className="text-white font-medium truncate max-w-[180px]">{file.name || 'image'}</span>
             </div>
-          ) : (
-            <p className="text-sm text-slate-500 italic">No specific forensic signals returned.</p>
-          )}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">MIME Payload:</span>
+              <span className="text-slate-300">{file.type}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Memory Footprint:</span>
+              <span className="text-slate-300">{file.size ? `${(file.size / 1024).toFixed(1)} KB` : '—'}</span>
+            </div>
+            {analyzedAt && (
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Verified Timestamp:</span>
+                <span className="text-cyan-400">{new Date(analyzedAt).toLocaleTimeString()}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Col: Forensic Signal Breakdown */}
+        <div className="lg:col-span-7 glass-card rounded-2xl p-5 sm:p-6 border border-slate-800/90 flex flex-col justify-between">
+          <div>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-2 border-b border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white">
+                  Forensic Signals ({signals.length})
+                </h3>
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => setSignalFilter('all')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors ${
+                    signalFilter === 'all' ? 'bg-slate-800 text-white font-semibold' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSignalFilter('ai')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors ${
+                    signalFilter === 'ai' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 font-semibold' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  AI
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSignalFilter('authentic')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors ${
+                    signalFilter === 'authentic' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Authentic
+                </button>
+              </div>
+            </div>
+
+            {/* Signals Stream */}
+            {filteredSignals.length > 0 ? (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                {filteredSignals.map((signal, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/90 transition-all hover:bg-slate-900/50"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <span className="text-sm font-semibold text-white tracking-tight">
+                        {signal.name}
+                      </span>
+                      <ImpactPill impact={signal.impact} />
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                      {signal.observation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-slate-500 font-mono text-xs">
+                No signals match the current filter selection.
+              </div>
+            )}
+          </div>
+
+          <div className="pt-3 mt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500">
+            <span>MULTIMODAL_INSPECTION_MATRIX</span>
+            <span>STATUS: COMPLETE</span>
+          </div>
         </div>
       </div>
 
-      {/* ── VISUAL OBSERVATIONS + MANIPULATION INDICATORS ── */}
+      {/* ── 4. OBSERVATIONS & MANIPULATION INDICATORS ── */}
       {(visualObservations.length > 0 || manipulationIndicators.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+          {/* Observable Characteristics */}
           {visualObservations.length > 0 && (
-            <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-3">Visual Observations</p>
-              <ul className="space-y-2">
+            <div className="glass-card rounded-2xl p-5 sm:p-6 border border-slate-800/90">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2 mb-4">
+                <Layers className="w-4 h-4" />
+                Observable Visual Characteristics
+              </span>
+              <ul className="space-y-2.5">
                 {visualObservations.map((obs, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
-                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                    {obs}
+                  <li key={idx} className="flex items-start gap-3 text-sm text-slate-200">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0 shadow-[0_0_6px_#22d3ee]" />
+                    <span className="leading-relaxed font-sans">{obs}</span>
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
+          {/* Manipulation Indicators */}
           {manipulationIndicators.length > 0 && (
-            <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-2">
-                <AlertOctagon className="w-3.5 h-3.5 text-rose-400" /> Possible Manipulation Indicators
-              </p>
-              <ul className="space-y-2">
+            <div className="glass-card rounded-2xl p-5 sm:p-6 border border-rose-500/30 shadow-[0_0_30px_rgba(244,63,94,0.1)]">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2 mb-4">
+                <AlertOctagon className="w-4 h-4" />
+                Detected Manipulation Indicators
+              </span>
+              <ul className="space-y-2.5">
                 {manipulationIndicators.map((ind, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
-                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
-                    {ind}
+                  <li key={idx} className="flex items-start gap-3 text-sm text-slate-200">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0 shadow-[0_0_6px_#fb7185]" />
+                    <span className="leading-relaxed font-sans">{ind}</span>
                   </li>
                 ))}
               </ul>
             </div>
           )}
+
         </div>
       )}
 
-      {/* ── WHAT SHOULD YOU DO? ── */}
-      <div className={`p-5 rounded-2xl border ${guidance.bg}`}>
-        <p className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-2">What should you do?</p>
-        <div className="flex items-start gap-3">
-          <GuidanceIcon className={`w-5 h-5 ${guidance.color} shrink-0 mt-0.5`} />
-          <p className="text-sm text-slate-300 leading-relaxed">{guidance.text}</p>
+      {/* ── 5. PROTOCOL & VERIFICATION NEXT STEPS ── */}
+      <div className="glass-card rounded-2xl p-6 border border-slate-800/90">
+        <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2 mb-3">
+          <CheckCircle2 className="w-4 h-4" />
+          Verification Protocol &amp; Recommended Next Steps
+        </span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          
+          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+            <p className="text-xs font-bold text-white mb-1.5">1. Trace Provenance</p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Verify where the image originated. Cross-reference the primary photographer, news agency, or publication date before broadcasting.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+            <p className="text-xs font-bold text-white mb-1.5">2. Reverse Image Search</p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Inspect older versions across search indexers (Google Images, TinEye) to see if older, unedited variants of the same composition exist.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+            <p className="text-xs font-bold text-white mb-1.5">3. Multi-Signal Corroboration</p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Never rely on a single forensic tool. Corroborate metadata, situational reporting, and independent eyewitness documentation.
+            </p>
+          </div>
+
         </div>
       </div>
 
-      {/* ── DISCLAIMER ── */}
-      <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-500/20 flex items-start gap-3">
-        <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-        <div className="text-xs text-amber-200/80 leading-relaxed">
-          <strong className="text-amber-300">AI-assisted assessment — not definitive proof.</strong>{' '}
-          Visual AI detection is probabilistic and can produce false positives and false negatives.
-          This report is based solely on observable visual characteristics and should not be treated as conclusive evidence of authenticity or manipulation.
+      {/* ── 6. FORENSIC DISCLAIMER ── */}
+      <div className="glass-card p-4 rounded-2xl border border-amber-500/25 bg-amber-950/20 flex items-start gap-3.5">
+        <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+        <div className="text-xs text-amber-200/90 leading-relaxed">
+          <strong className="text-amber-300 font-semibold">Probabilistic Forensics Advisory:</strong>{' '}
+          Computer vision assessment identifies visual and statistical artifacts, but cannot guarantee 100% ground-truth provenance.
           {limitations.length > 0 && (
             <ul className="mt-2 space-y-1">
               {limitations.slice(0, 2).map((lim, i) => (
-                <li key={i} className="flex items-start gap-1.5">
-                  <span className="mt-1 w-1 h-1 rounded-full bg-amber-400 shrink-0" />{lim}
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-1.5 w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                  <span>{lim}</span>
                 </li>
               ))}
             </ul>
@@ -351,43 +561,28 @@ export default function AnalysisResult({ result, previewUrl, onReset }) {
         </div>
       </div>
 
-      {/* ── SOURCE VERIFICATION PLACEHOLDER ── */}
-      <div className="p-5 rounded-2xl bg-slate-900/40 border border-dashed border-slate-700/60">
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-slate-800 border border-slate-700 shrink-0">
-            <ExternalLink className="w-4 h-4 text-slate-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-300 mb-1">Source Verification — Coming Soon</p>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              TruthShield will help you trace the origin, publication history, and spread of suspicious media — cross-referencing news archives and known databases of viral AI imagery.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── RAW GEMINI JSON (collapsible) ── */}
-      <div className="rounded-2xl bg-slate-900/30 border border-slate-800 overflow-hidden">
+      {/* ── 7. COLLAPSIBLE RAW JSON INSPECTOR ── */}
+      <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden">
         <button
           type="button"
           onClick={() => setShowRaw(!showRaw)}
           aria-expanded={showRaw}
           aria-controls="raw-gemini-json-panel"
-          className="w-full p-4 flex items-center justify-between text-left text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-900/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="w-full p-4 flex items-center justify-between text-left text-xs font-mono text-slate-400 hover:text-white hover:bg-slate-900/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
         >
           <span className="flex items-center gap-2">
-            <FileCode className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-            Raw Gemini Response
+            <FileCode className="w-4 h-4 text-cyan-400" aria-hidden="true" />
+            <span>Structured Verification Telemetry &amp; Raw JSON</span>
           </span>
-          <span className="flex items-center gap-1">
-            {showRaw ? 'Hide' : 'Inspect'}
-            {showRaw ? <ChevronUp className="w-4 h-4" aria-hidden="true" /> : <ChevronDown className="w-4 h-4" aria-hidden="true" />}
+          <span className="flex items-center gap-1.5 text-[11px] bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+            {showRaw ? 'Collapse Terminal' : 'Inspect Raw JSON'}
+            {showRaw ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </span>
         </button>
 
         {showRaw && (
-          <div id="raw-gemini-json-panel" className="p-4 border-t border-slate-800 bg-slate-950 overflow-x-auto">
-            <pre className="text-emerald-400 text-xs max-h-72 overflow-y-auto leading-relaxed">
+          <div id="raw-gemini-json-panel" className="p-4 border-t border-slate-800 bg-slate-950/90 overflow-x-auto">
+            <pre className="text-cyan-300 text-xs font-mono max-h-80 overflow-y-auto leading-relaxed p-2">
               {JSON.stringify(result, null, 2)}
             </pre>
           </div>
@@ -397,3 +592,4 @@ export default function AnalysisResult({ result, previewUrl, onReset }) {
     </div>
   );
 }
+

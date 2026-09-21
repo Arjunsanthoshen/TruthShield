@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import UploadZone from '../components/UploadZone';
 import MediaPreview from '../components/MediaPreview';
 import AnalysisResult from '../components/AnalysisResult';
@@ -22,7 +22,7 @@ export default function Analyze({ onNavigate }) {
     };
   }, [previewUrl]);
 
-  const handleFileSelected = (file) => {
+  const handleFileSelected = useCallback((file) => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -32,7 +32,32 @@ export default function Analyze({ onNavigate }) {
     setPreviewUrl(objectUrl);
     setUiState('selected');
     setStateData(null);
-  };
+  }, [previewUrl]);
+
+  // Support pasting image directly from clipboard (Ctrl+V / Cmd+V)
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (uiState === 'loading') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            handleFileSelected(file);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [uiState, handleFileSelected]);
 
   const handleFileError = (errorObj) => {
     setUiState('invalid_file');

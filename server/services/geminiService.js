@@ -11,6 +11,8 @@
 
 import { GoogleGenAI } from '@google/genai';
 
+import crypto from 'crypto';
+
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
 export const FALLBACK_GEMINI_MODELS = [
   'gemini-3.5-flash-lite',
@@ -20,6 +22,16 @@ export const FALLBACK_GEMINI_MODELS = [
   'gemini-3.6-flash'
 ];
 const REQUEST_TIMEOUT_MS = 30000;
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15-minute in-memory cache for repeat uploads
+const MAX_CACHE_ENTRIES = 100;
+const analysisCache = new Map();
+
+/**
+ * Clear cache helper for testing/debugging
+ */
+export function clearAnalysisCache() {
+  analysisCache.clear();
+}
 
 /**
  * Get prioritized candidate models starting with the configured model
@@ -54,7 +66,8 @@ async function callGeminiWithTimeout(ai, model, contents, timeoutMs) {
       contents,
       config: {
         responseMimeType: 'application/json',
-        temperature: 0.1
+        temperature: 0.1,
+        maxOutputTokens: 1024
       }
     });
     return await Promise.race([callPromise, timeoutPromise]);
@@ -194,6 +207,22 @@ function sanitizeErrorMessage(message) {
  * @returns {Promise<object>} Normalized TruthShield analysis result
  */
 export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'image') {
+  // Fast in-memory cache lookup by image buffer SHA-256
+  const imageHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+  const cached = analysisCache.get(imageHash);
+  if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+    console.log(`[GeminiService] Cache HIT for "${filename}" [${imageHash.slice(0, 10)}] (${Math.round((Date.now() - cached.timestamp) / 1000)}s old)`);
+    return {
+      ...cached.result,
+      file: {
+        name: filename,
+        size: fileBuffer.length,
+        type: mimeType
+      },
+      cached: true
+    };
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || !apiKey.trim()) {
     const err = new Error('Gemini API key is not configured on the server. Please add GEMINI_API_KEY to the server .env file.');
@@ -316,7 +345,7 @@ export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'i
 
   console.log(`[GeminiService] Analysis complete with ${successfulModel} for "${filename}" — verdict: ${analysis.verdict}, confidence: ${analysis.confidence}`);
 
-  return {
+  const finalResult = {
     success: true,
     provider: 'Gemini',
     model: successfulModel,
@@ -336,6 +365,15 @@ export async function analyzeImageWithGemini(fileBuffer, mimeType, filename = 'i
       analyzedAt: new Date().toISOString()
     }
   };
+
+  // Cache up to MAX_CACHE_ENTRIES
+  if (analysisCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = analysisCache.keys().next().value;
+    analysisCache.delete(oldestKey);
+  }
+  analysisCache.set(imageHash, { timestamp: Date.now(), result: finalResult });
+
+  return finalResult;
 }
 
 export { parseGeminiJson, sanitizeErrorMessage };

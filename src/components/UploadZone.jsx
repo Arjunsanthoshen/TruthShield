@@ -192,8 +192,10 @@ export default function UploadZone({ onFileSelected, onError, disabled }) {
             ))}
           </div>
 
-          <p className="text-xs text-slate-500 font-mono">
-            Maximum file size: 20 MB &bull; In-memory zero retention processing
+          <p className="text-xs text-slate-500 font-mono flex items-center justify-center gap-2 flex-wrap">
+            <span>Max file size: 20 MB</span>
+            <span>&bull;</span>
+            <span className="text-slate-400">Press <kbd className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 font-mono text-[10px]">Ctrl+V</kbd> to paste from clipboard</span>
           </p>
         </div>
 

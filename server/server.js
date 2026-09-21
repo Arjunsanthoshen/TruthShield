@@ -60,12 +60,22 @@ app.use('/api', (req, res) => {
   });
 });
 
-// Serve Vite production build for all non-API routes
+// Serve Vite production build for all non-API routes with immutable caching
 const distPath = join(__dirname, '../dist');
 if (existsSync(distPath)) {
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, {
+    maxAge: '1y',
+    immutable: true,
+    setHeaders: (res, path) => {
+      // Never cache index.html so users always get fresh bundles
+      if (path.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    }
+  }));
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      res.setHeader('Cache-Control', 'no-cache');
       return res.sendFile(join(distPath, 'index.html'));
     }
     next();
